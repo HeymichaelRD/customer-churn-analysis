@@ -1,0 +1,9 @@
+# =====================================================================
+#  CODEOWNERS: quién debe aprobar los cambios
+#  GitHub pide automáticamente la revisión de estas personas en cada
+#  Pull Request. Con "Require review from Code Owners" activo en el
+#  ruleset "Proteger main", su aprobación es obligatoria para unir a main.
+# =====================================================================
+
+# Todos los archivos del proyecto
+* @HeymichaelRD
