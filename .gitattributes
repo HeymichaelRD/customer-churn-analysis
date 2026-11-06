@@ -1,0 +1,12 @@
+# Normaliza los saltos de línea entre Windows, Mac y Linux
+* text=auto
+
+# Archivos binarios: Git no intenta compararlos ni combinarlos
+*.pbix    binary
+*.pkl     binary
+*.joblib  binary
+*.xlsx    binary
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.pdf     binary

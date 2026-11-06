@@ -1,0 +1,55 @@
+# =====================================================================
+#  .gitignore — Customer Churn Analysis
+#  Archivos y carpetas que Git NO sube a GitHub.
+# =====================================================================
+
+# --- Ambientes virtuales (cada quien crea el suyo) ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Secretos (usa .env.example como plantilla) ---
+.env
+.env.*
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Datos y modelos ---
+# data/ y models/ SÍ se suben (el dataset es público).
+# Solo el responsable sube la versión oficial de data/processed/,
+# data/output/ y models/. GitHub rechaza archivos de más de 100 MB.
+# Para pruebas personales usa una carpeta tmp/ (no se sube):
+tmp/
+
+# --- Power BI (solo si algún día usan el formato .pbip) ---
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# --- Archivos temporales de Office (Excel, Word abiertos) ---
+~$*
+
+# --- Logs (API, RPA, Selenium) ---
+*.log
+
+# --- Web (si usan Node) ---
+node_modules/
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editores ---
+.vscode/
+.idea/
+
+# --- Claude (contexto local, no se sube) ---
+CLAUDE.md
+.claude/
