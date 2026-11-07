@@ -97,8 +97,7 @@ Cada equipo trabaja **en su carpeta** y **en su rama**. Así nadie pisa el traba
 
 | Equipo | Carpeta | Rama | Entrega |
 |---|---|---|---|
-| 🧹 Limpieza de datos | `src/cleaning/` | `cleaning` | Datos limpios en `data/processed/` |
-| 🔍 EDA | `notebooks/` | `eda` | Notebooks con el análisis y los hallazgos |
+| 🧹 Limpieza y 🔍 EDA | `src/cleaning/` y `notebooks/` | `cleaning-eda` | Datos limpios en `data/processed/` y notebooks con el análisis y los hallazgos |
 | 🤖 Modelos de ML | `src/modeling/` | `modeling` | Modelo entrenado en `models/` |
 | 🔌 API y 🌐 Web | `src/api/` y `web/` | `api-web` | API en Flask que devuelve predicciones y página en HTML/CSS/JS que la consume |
 | 📊 Dashboard | `dashboard/` | `dashboard` | Archivo `.pbix` de Power BI |
@@ -271,7 +270,7 @@ flowchart LR
 ```
 
 1. **Bajar cambios:** clic en **Fetch origin** y luego en **Pull origin**.
-2. **Cambiar de rama:** en **Current branch**, elige la rama de tu equipo (por ejemplo `cleaning`).
+2. **Cambiar de rama:** en **Current branch**, elige la rama de tu equipo (por ejemplo `cleaning-eda`).
 3. **Actualizar tu rama con `main`:** menú **Branch → Update from main**. Así tienes lo último que aprobaron los otros equipos.
 4. **Trabajar:** haz tus cambios en VS Code.
 5. **Commit:** en GitHub Desktop revisa los archivos de la izquierda (desmarca los que no quieras subir), escribe un resumen abajo y clic en **Commit to `<tu-rama>`**.
@@ -332,9 +331,9 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 
 | Entrega | De → Para | Archivo / endpoint | Estado |
 |---|---|---|---|
-| Datos limpios | Limpieza → EDA, Modelos | `data/processed/________.csv` | ⏳ Por definir |
+| Datos limpios | Limpieza y EDA → Modelos | `data/processed/________.csv` | ⏳ Por definir |
 | Modelo entrenado | Modelos → API | `models/________.pkl` | ⏳ Por definir |
-| Datos para el dashboard | Limpieza, Modelos → Power BI | `data/output/________.csv` | ⏳ Por definir |
+| Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/________.csv` | ⏳ Por definir |
 | Predicción | API → Web | `POST /predict` | ⏳ Por definir |
 
 <details>
@@ -416,8 +415,7 @@ Avísale a Michael. Si fue una contraseña, cámbiala de inmediato: aunque se bo
 | Equipo | Integrantes |
 |---|---|
 | 🛠️ Mantenedor del repo | Michael ([HeymichaelRD](https://github.com/HeymichaelRD)) |
-| 🧹 Limpieza de datos | _(por completar)_ |
-| 🔍 EDA | _(por completar)_ |
+| 🧹 Limpieza y 🔍 EDA | _(por completar)_ |
 | 🤖 Modelos de ML | _(por completar)_ |
 | 🔌 API y 🌐 Web | Michael ([HeymichaelRD](https://github.com/HeymichaelRD)), _(por completar)_ |
 | 📊 Dashboard | _(por completar)_ |
