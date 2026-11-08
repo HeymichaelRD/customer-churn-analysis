@@ -7,9 +7,12 @@ El contrato con la página web (rutas, JSON de entrada y de salida) está en el
 README, sección "Contratos entre equipos".
 """
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
+
+import model_service
+from schema import ValidationError, validate_customer
 
 # Direcciones desde donde la página web puede llamar a la API.
 # Van las dos porque el navegador las trata como sitios distintos:
@@ -35,9 +38,23 @@ CORS(app, origins=WEB_ORIGINS)
 @app.get("/health")
 def health():
     """Indica si la API está encendida y qué modelo está usando."""
-    # TODO (Fase 1): tomar la versión del modelo desde model_service.py.
-    # Mientras no llegue el modelo real del equipo de Modelos, la API trabaja en modo "demo".
-    return jsonify(status="ok", model_version="demo")
+    # Mientras no llegue el modelo real del equipo de Modelos, la versión es "demo".
+    return jsonify(status="ok", model_version=model_service.model_version())
+
+
+@app.post("/predict")
+def predict():
+    """Riesgo de abandono de un cliente. El contrato está en el README."""
+    # silent=True: si el cuerpo no es JSON válido, devuelve None en vez de lanzar un error genérico.
+    payload = request.get_json(silent=True)
+    customer = validate_customer(payload)
+    return jsonify(model_service.predict_customer(customer))
+
+
+@app.errorhandler(ValidationError)
+def handle_validation_error(error):
+    """Datos del cliente que no cumplen el contrato: 400 con el mensaje y el campo."""
+    return jsonify(error=error.message, field=error.field), 400
 
 
 @app.errorhandler(HTTPException)
