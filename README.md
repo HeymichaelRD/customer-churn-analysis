@@ -129,7 +129,7 @@ customer-churn-analysis/
 ├── dashboard/          ← archivo .pbix de Power BI
 ├── web/                ← página web (HTML, CSS, JS)
 ├── assets/             ← imágenes y documentos del proyecto
-├── docs/               ← planes de trabajo de los equipos
+├── docs/               ← planes de trabajo y guías (como la de Git)
 └── tests/              ← pruebas automáticas
 ```
 
@@ -250,6 +250,9 @@ pytest
 ---
 
 ## 🤝 Cómo colaborar
+
+> [!TIP]
+> ¿Primera vez con Git? Lee la **[Guía de Git del proyecto](docs/guia-git.md)**: qué es Git, para qué sirve y los comandos esenciales para colaborar, con ejemplos de este proyecto.
 
 ### Reglas de oro
 
