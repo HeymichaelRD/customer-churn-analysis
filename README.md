@@ -103,6 +103,9 @@ Cada equipo trabaja **en su carpeta** y **en su rama**. Así nadie pisa el traba
 | 📊 Dashboard | `dashboard/` | `dashboard` | Archivo `.pbix` de Power BI |
 | ⚙️ RPA | `src/rpa/` | `rpa` | Bot de automatización en Python |
 
+> [!TIP]
+> El plan del equipo API y Web (qué vamos a construir, en qué fases y quién hace qué) está en [`docs/plan-api-web.md`](docs/plan-api-web.md).
+
 ---
 
 ## 📁 Estructura de carpetas
@@ -126,6 +129,7 @@ customer-churn-analysis/
 ├── dashboard/          ← archivo .pbix de Power BI
 ├── web/                ← página web (HTML, CSS, JS)
 ├── assets/             ← imágenes y documentos del proyecto
+├── docs/               ← planes de trabajo de los equipos
 └── tests/              ← pruebas automáticas
 ```
 
