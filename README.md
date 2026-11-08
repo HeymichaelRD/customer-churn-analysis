@@ -225,7 +225,7 @@ jupyter notebook
 flask --app src/api/app run
 ```
 
-La API queda disponible en `http://localhost:5000`. _(El equipo de API y Web confirma este comando cuando cree `app.py`.)_
+La API queda disponible en `http://localhost:5000`. Para comprobar que está encendida, abre `http://localhost:5000/health` en el navegador: debe responder `{"status": "ok", ...}`.
 
 **Página web**
 
@@ -235,7 +235,7 @@ Con la API corriendo, abre otra terminal:
 python -m http.server 8000 --directory web
 ```
 
-Luego abre `http://localhost:8000` en el navegador.
+Luego abre `http://localhost:8000` en el navegador. Arriba a la derecha verás si la página está conectada con la API (punto verde) o no (punto rojo).
 
 **Pruebas**
 
@@ -334,31 +334,105 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 | Datos limpios | Limpieza y EDA → Modelos | `data/processed/________.csv` | ⏳ Por definir |
 | Modelo entrenado | Modelos → API | `models/________.pkl` | ⏳ Por definir |
 | Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/________.csv` | ⏳ Por definir |
-| Predicción | API → Web | `POST /predict` | ⏳ Por definir |
+| Predicción | API → Web | `GET /health` y `POST /predict` | 📝 Borrador v1 (abajo) |
 
 <details>
-<summary><b>Ejemplo de cómo podría verse la API</b> (solo ilustrativo)</summary>
+<summary><b>📝 Contrato API → Web (borrador v1)</b></summary>
 
-**Petición** — `POST /predict`
+**Conexión:** la API corre en `http://localhost:5000` y habla en JSON. Solo acepta llamadas de la página web (`http://localhost:8000` o `http://127.0.0.1:8000`).
+
+#### `GET /health`: ¿está encendida la API?
+
+```json
+{ "status": "ok", "model_version": "demo" }
+```
+
+`model_version` es `"demo"` mientras la API use un modelo provisional. Cuando llegue el modelo real del equipo de Modelos, dirá su versión.
+
+#### `POST /predict`: riesgo de abandono de un cliente
+
+**Petición:** los 19 campos del dataset, con los **mismos nombres y valores** (en inglés y con las mismas mayúsculas). `customerID` no se envía.
+
+| Campo | Tipo | Valores permitidos |
+|---|---|---|
+| `gender` | texto | `"Female"`, `"Male"` |
+| `SeniorCitizen` | entero | `0` (no), `1` (sí) |
+| `Partner`, `Dependents`, `PhoneService`, `PaperlessBilling` | texto | `"Yes"`, `"No"` |
+| `tenure` | entero | `0` o más (meses como cliente) |
+| `MultipleLines` | texto | `"Yes"`, `"No"`, `"No phone service"` |
+| `InternetService` | texto | `"DSL"`, `"Fiber optic"`, `"No"` |
+| `OnlineSecurity`, `OnlineBackup`, `DeviceProtection`, `TechSupport`, `StreamingTV`, `StreamingMovies` | texto | `"Yes"`, `"No"`, `"No internet service"` |
+| `Contract` | texto | `"Month-to-month"`, `"One year"`, `"Two year"` |
+| `PaymentMethod` | texto | `"Electronic check"`, `"Mailed check"`, `"Bank transfer (automatic)"`, `"Credit card (automatic)"` |
+| `MonthlyCharges` | número | mayor que `0` |
+| `TotalCharges` | número | `0` o más (con `tenure` 0, se envía `0`) |
+
+**Reglas de coherencia** (si no se cumplen, la API responde `400`):
+
+- Si `PhoneService` es `"No"`, `MultipleLines` debe ser `"No phone service"`.
+- Si `InternetService` es `"No"`, los 6 servicios de internet deben ser `"No internet service"`.
+
+Ejemplo (el primer cliente del dataset):
 
 ```json
 {
-  "tenure": 12,
-  "contract": "Month-to-month",
-  "monthly_charges": 70.5
+  "gender": "Female",
+  "SeniorCitizen": 0,
+  "Partner": "Yes",
+  "Dependents": "No",
+  "tenure": 1,
+  "PhoneService": "No",
+  "MultipleLines": "No phone service",
+  "InternetService": "DSL",
+  "OnlineSecurity": "No",
+  "OnlineBackup": "Yes",
+  "DeviceProtection": "No",
+  "TechSupport": "No",
+  "StreamingTV": "No",
+  "StreamingMovies": "No",
+  "Contract": "Month-to-month",
+  "PaperlessBilling": "Yes",
+  "PaymentMethod": "Electronic check",
+  "MonthlyCharges": 29.85,
+  "TotalCharges": 29.85
 }
 ```
 
-**Respuesta**
+**Respuesta** (`200`; los valores son ilustrativos):
 
 ```json
 {
   "churn": true,
-  "probability": 0.78
+  "probability": 0.78,
+  "risk_level": "high",
+  "model_version": "demo"
 }
 ```
 
-Las columnas reales salen del equipo de Modelos.
+| Campo | Significado |
+|---|---|
+| `churn` | `true` si el modelo predice que el cliente **abandona** |
+| `probability` | Probabilidad de abandono, de `0` a `1`, con 2 decimales |
+| `risk_level` | `"low"` (menos de 0.30), `"medium"` (de 0.30 a menos de 0.60) o `"high"` (0.60 o más). Umbrales provisionales |
+| `model_version` | `"demo"` o la versión del modelo real |
+
+#### Errores
+
+| Código | Cuándo | Respuesta |
+|---|---|---|
+| `400` | Falta un campo, el tipo o el valor no es válido, o se rompe una regla de coherencia | `{"error": "El campo Contract tiene un valor no permitido", "field": "Contract"}` |
+| `404` | La ruta no existe | `{"error": "Esa ruta no existe en la API"}` |
+| `500` | Falla la API o el modelo | `{"error": "Error interno de la API"}` |
+
+Los mensajes van en español porque la página se los muestra al usuario. `field` sirve para marcar en rojo el campo del formulario.
+
+**Por confirmar con otros equipos:**
+
+1. **Modelos:** qué columnas usa el modelo. Si son menos de 19, se recorta este contrato.
+2. **Limpieza y EDA:** cómo tratan `TotalCharges` vacío (los 11 clientes con `tenure` 0).
+3. **Modelos:** a partir de qué probabilidad `churn` es `true` (por defecto, `0.5`).
+
+Las demás rutas de la API (recomendaciones, clientes de ejemplo, hallazgos, información del modelo y predicción por lotes) se documentan aquí cuando se construyan.
 
 </details>
 

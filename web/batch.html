@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Por lotes · Customer Churn Analysis</title>
+    <meta name="description" content="Sube una lista de clientes y obtén su riesgo de abandono, ordenado de mayor a menor." />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f5f73' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="css/base.css" />
+    <script type="module" src="js/common.js"></script>
+    <!-- Estilos y código propios de esta página: créalos y enlázalos aquí.
+    <link rel="stylesheet" href="css/batch.css" />
+    <script type="module" src="js/batch.js"></script>
+    -->
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html">
+          <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+            <polyline points="3 7 9 13 13 9 21 17" />
+            <polyline points="15 17 21 17 21 11" />
+          </svg>
+          Customer Churn Analysis
+        </a>
+        <nav class="site-nav" aria-label="Principal">
+          <ul class="nav-list">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="predict.html">Predecir</a></li>
+            <li><a href="batch.html" aria-current="page">Por lotes</a></li>
+            <li><a href="insights.html">Hallazgos</a></li>
+            <li><a href="about.html">Sobre el proyecto</a></li>
+          </ul>
+        </nav>
+        <p class="api-status" id="api-status" data-state="checking" role="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="status-text">Conectando con la API…</span>
+        </p>
+      </div>
+    </header>
+
+    <div class="demo-banner" id="demo-banner" hidden>
+      <p class="container">
+        <strong>Modo demostración:</strong> la API usa un modelo provisional mientras llega el modelo real del equipo
+        de Modelos. Los resultados son solo de ejemplo.
+      </p>
+    </div>
+
+    <main id="main" class="container">
+      <section class="page-intro">
+        <p class="eyebrow">Predicción por lotes</p>
+        <h1>¿A quién hay que llamar esta semana?</h1>
+        <p class="lead">
+          Sube un archivo CSV con muchos clientes y obtén la lista ordenada por riesgo, con el ingreso total que está
+          en juego.
+        </p>
+      </section>
+
+      <section class="card placeholder section" aria-labelledby="todo-title">
+        <h2 id="todo-title">🚧 En construcción</h2>
+        <p>Aquí irá <strong>(Fase 3)</strong>:</p>
+        <ul>
+          <li>Plantilla CSV para descargar, con las columnas que espera la API.</li>
+          <li>Subir el archivo (<code>POST /predict/batch</code>), incluso el dataset completo de 7,043 clientes.</li>
+          <li>Resumen: clientes por nivel de riesgo e ingreso mensual en riesgo.</li>
+          <li>Tabla ordenada por riesgo y filtrable, con las filas que tuvieron errores.</li>
+          <li>Descargar los resultados en CSV.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026 ·
+          <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

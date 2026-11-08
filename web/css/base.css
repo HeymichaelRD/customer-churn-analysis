@@ -1,0 +1,562 @@
+/* =====================================================================
+   Estilos compartidos por todas las páginas.
+   Los estilos propios de cada página van en su propia hoja, con el mismo
+   nombre que el HTML (css/predict.css, css/insights.css...).
+   Si necesitas cambiar algo de este archivo, pídeselo a Michael.
+   ===================================================================== */
+
+/* --- Guía visual -----------------------------------------------------
+   Paleta provisional: se acuerda con el equipo de Dashboard para que la
+   web y el Power BI se vean como un solo proyecto. */
+:root {
+  /* Base */
+  --color-bg: #f6f5f1;
+  --color-surface: #ffffff;
+  --color-surface-muted: #efede7;
+  --color-border: #dcd8ce;
+  --color-text: #1d2433;
+  --color-text-muted: #5b6474;
+
+  /* Marca */
+  --color-primary: #0f5f73;
+  --color-primary-strong: #0a4655;
+  --color-primary-soft: #dcecef;
+  --color-accent: #e07a2e;
+
+  /* Niveles de riesgo: color del texto y fondo suave */
+  --color-risk-low: #2f7d4f;
+  --color-risk-low-soft: #e1f1e6;
+  --color-risk-medium: #92600e;
+  --color-risk-medium-soft: #fbefd9;
+  --color-risk-high: #c0392b;
+  --color-risk-high-soft: #f8e1de;
+
+  /* Tipografía: fuentes del sistema, así la página no depende de internet */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  /* Espacios, bordes y sombras */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgb(29 36 51 / 0.06);
+  --shadow-md: 0 6px 20px rgb(29 36 51 / 0.08);
+  --container-width: 1120px;
+}
+
+/* --- Base ------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+main {
+  flex: 1;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 var(--space-3);
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.375rem;
+}
+
+h3 {
+  font-size: 1.125rem;
+}
+
+p {
+  margin: 0 0 var(--space-4);
+}
+
+a {
+  color: var(--color-primary);
+}
+
+a:hover {
+  color: var(--color-primary-strong);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* --- Utilidades ------------------------------------------------------ */
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+/* Oculta un texto a la vista, pero los lectores de pantalla lo leen */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Enlace "Saltar al contenido": aparece solo al navegar con el teclado */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: var(--space-4);
+  z-index: 10;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius-md);
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+  color: #fff;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+/* Números alineados en columnas (tablas, KPIs) */
+.numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rejilla que se adapta sola: varias columnas en PC, una en móvil */
+.grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+
+.section {
+  margin-bottom: var(--space-6);
+}
+
+/* --- Encabezado y menú ----------------------------------------------- */
+.site-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+  padding-block: var(--space-3);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--color-text);
+}
+
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.site-nav {
+  flex: 1;
+  overflow-x: auto;
+}
+
+.nav-list {
+  display: flex;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-list a {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-list a:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.nav-list a[aria-current="page"] {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+}
+
+/* En móvil: logo y estado arriba; el menú abajo, deslizable de lado */
+@media (max-width: 760px) {
+  .site-nav {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .api-status {
+    margin-left: auto;
+  }
+}
+
+/* Estado de la API: lo actualiza js/common.js */
+.api-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+
+.api-status[data-state="checking"] .status-dot {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.api-status[data-state="online"] .status-dot {
+  background: var(--color-risk-low);
+}
+
+.api-status[data-state="offline"] .status-dot {
+  background: var(--color-risk-high);
+}
+
+/* Aviso de "modo demostración" (lo muestra js/common.js) */
+.demo-banner {
+  padding-block: var(--space-2);
+  background: var(--color-risk-medium-soft);
+  border-bottom: 1px solid #efd9ad;
+  color: var(--color-risk-medium);
+  font-size: 0.9375rem;
+}
+
+.demo-banner p {
+  margin-block: 0;
+}
+
+/* --- Contenido ------------------------------------------------------- */
+.page-intro {
+  max-width: 760px;
+  padding-block: var(--space-7) var(--space-5);
+}
+
+.eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lead {
+  color: var(--color-text-muted);
+  font-size: 1.125rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.card {
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Cifra destacada (KPI) */
+.kpi-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.kpi-label {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Marcador "en construcción": se borra cuando la página tenga contenido */
+.placeholder {
+  background: transparent;
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.placeholder ul {
+  margin: 0 0 var(--space-4);
+  padding-left: var(--space-5);
+}
+
+/* --- Botones --------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-strong);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-strong);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* --- Formularios ----------------------------------------------------- */
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field label,
+.field legend {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.field-hint {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.field-error {
+  color: var(--color-risk-high);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+input,
+select {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font: inherit;
+}
+
+input:focus-visible,
+select:focus-visible {
+  border-color: var(--color-primary);
+}
+
+input:disabled,
+select:disabled {
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+}
+
+/* Campo con error (la API indica cuál en "field") */
+[aria-invalid="true"] {
+  border-color: var(--color-risk-high);
+}
+
+/* --- Niveles de riesgo ------------------------------------------------
+   Uso: <span class="badge" data-risk="high">Riesgo alto</span>
+   data-risk también sirve en otros elementos: define --risk-color y --risk-soft. */
+[data-risk="low"] {
+  --risk-color: var(--color-risk-low);
+  --risk-soft: var(--color-risk-low-soft);
+}
+
+[data-risk="medium"] {
+  --risk-color: var(--color-risk-medium);
+  --risk-soft: var(--color-risk-medium-soft);
+}
+
+[data-risk="high"] {
+  --risk-color: var(--color-risk-high);
+  --risk-soft: var(--color-risk-high-soft);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-3);
+  border-radius: 999px;
+  background: var(--risk-soft, var(--color-surface-muted));
+  color: var(--risk-color, var(--color-text));
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+/* --- Avisos ---------------------------------------------------------- */
+.alert {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid;
+  border-radius: var(--radius-md);
+}
+
+.alert-error {
+  background: var(--color-risk-high-soft);
+  border-color: #eebbb5;
+  color: var(--color-risk-high);
+}
+
+.alert-info {
+  background: var(--color-primary-soft);
+  border-color: #b9d8de;
+  color: var(--color-primary-strong);
+}
+
+/* --- Cargando -------------------------------------------------------- */
+.spinner {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* --- Pie de página --------------------------------------------------- */
+.site-footer {
+  margin-top: var(--space-7);
+  padding-block: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+/* --- Menos movimiento para quien lo pide en su sistema --------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
