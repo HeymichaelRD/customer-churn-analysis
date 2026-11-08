@@ -495,7 +495,7 @@ Avísale a Michael. Si fue una contraseña, cámbiala de inmediato: aunque se bo
 | 🛠️ Mantenedor del repo | Michael ([HeymichaelRD](https://github.com/HeymichaelRD)) |
 | 🧹 Limpieza y 🔍 EDA | _(por completar)_ |
 | 🤖 Modelos de ML | _(por completar)_ |
-| 🔌 API y 🌐 Web | Michael ([HeymichaelRD](https://github.com/HeymichaelRD)), _(por completar)_ |
+| 🔌 API y 🌐 Web | Michael ([HeymichaelRD](https://github.com/HeymichaelRD)),   Christopher ([chpujols-DS07](https://github.com/chpujols-DS07)) |
 | 📊 Dashboard | _(por completar)_ |
 | ⚙️ RPA | _(por completar)_ |
 
