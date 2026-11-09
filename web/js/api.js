@@ -25,9 +25,14 @@ export class ApiError extends Error {
   }
 }
 
-/** Hace la petición, espera la respuesta y la convierte de JSON a objeto. */
-async function request(path, { method = "GET", body, timeoutMs = REQUEST_TIMEOUT_MS } = {}) {
-  const options = { method, signal: AbortSignal.timeout(timeoutMs) };
+/**
+ * Hace la petición, espera la respuesta y la convierte de JSON a objeto.
+ * `signal` (opcional) permite cancelarla, por ejemplo cuando el formulario
+ * cambió y ya hay una petición más nueva: ver predict() más abajo.
+ */
+async function request(path, { method = "GET", body, timeoutMs = REQUEST_TIMEOUT_MS, signal } = {}) {
+  const timeout = AbortSignal.timeout(timeoutMs);
+  const options = { method, signal: signal ? AbortSignal.any([signal, timeout]) : timeout };
 
   if (body instanceof FormData) {
     options.body = body; // archivos: el navegador pone el Content-Type solo
@@ -40,6 +45,8 @@ async function request(path, { method = "GET", body, timeoutMs = REQUEST_TIMEOUT
   try {
     response = await fetch(`${API_BASE_URL}${path}`, options);
   } catch (error) {
+    // Si la canceló la página, no es un problema de la API: el error se pasa tal cual.
+    if (signal?.aborted) throw error;
     const message =
       error.name === "TimeoutError"
         ? "La API tardó demasiado en responder. Inténtalo de nuevo."
@@ -48,6 +55,7 @@ async function request(path, { method = "GET", body, timeoutMs = REQUEST_TIMEOUT
   }
 
   const data = await response.json().catch(() => null);
+  if (signal?.aborted) throw signal.reason; // se canceló mientras llegaba la respuesta
   if (!response.ok) {
     throw new ApiError(data?.error ?? `La API respondió con un error (${response.status}).`, {
       status: response.status,
@@ -62,8 +70,12 @@ async function request(path, { method = "GET", body, timeoutMs = REQUEST_TIMEOUT
 /** GET /health → { status, model_version } */
 export const getHealth = () => request("/health", { timeoutMs: 5000 });
 
-/** POST /predict → { churn, probability, risk_level, model_version } */
-export const predict = (customer) => request("/predict", { method: "POST", body: customer });
+/**
+ * POST /predict → { churn, probability, risk_level, model_version }
+ * Para poder cancelarla: predict(customer, { signal: controller.signal }),
+ * donde controller es un new AbortController(); controller.abort() la cancela.
+ */
+export const predict = (customer, { signal } = {}) => request("/predict", { method: "POST", body: customer, signal });
 
 // --- Fase 2 (todavía no existen en la API) -----------------------------
 

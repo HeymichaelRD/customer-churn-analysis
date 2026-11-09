@@ -565,8 +565,11 @@ code {
 }
 
 /* --- Páginas y textos: títulos, párrafos y secciones --------------------- */
+/* La página aparece subiendo un poco. Se usa "backwards" y no "both": con "both",
+   al terminar la animación la página se queda con un transform, y entonces lo que
+   tiene position: fixed adentro (la barra flotante de Predecir) deja de verse. */
 .page {
-  animation: page-in 0.5s var(--ease) both;
+  animation: page-in 0.5s var(--ease) backwards;
 }
 
 @keyframes page-in {
@@ -965,6 +968,12 @@ code {
 
 .seg label:active {
   opacity: 0.6;
+}
+
+/* Opción bloqueada, por ejemplo "Sin internet" cuando el cliente no tiene teléfono */
+.seg input:disabled + label {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .switch {

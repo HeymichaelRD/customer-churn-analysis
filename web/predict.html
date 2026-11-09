@@ -14,9 +14,7 @@
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/predict.css" />
     <script type="module" src="js/common.js"></script>
-    <!-- El código de esta página va en js/predict.js: créalo y quita este comentario.
     <script type="module" src="js/predict.js"></script>
-    -->
   </head>
   <body>
     <a class="skip" href="#main">Saltar al contenido</a>
@@ -77,30 +75,68 @@
         </div>
 
         <div class="predict-grid">
-          <!-- Fase 1 (js/predict.js): en el prototipo es <form class="form">. -->
-          <div class="placeholder">
-            <span class="placeholder-tag">Fase 1</span>
-            <b>Formulario del cliente</b>
-            <p>
-              Los 19 datos del cliente en 3 grupos: perfil, servicios y cuenta. Con interruptores, controles segmentados
-              y deslizadores, como en Ajustes de iOS.
-            </p>
-            <p class="caption">
-              Se arma con <code>FIELD_GROUPS</code> y <code>FIELDS</code> de <code>js/labels.js</code>.
-            </p>
-          </div>
+          <!-- js/predict.js arma el formulario con FIELD_GROUPS y FIELDS de js/labels.js -->
+          <form class="form" id="predict-form" aria-label="Datos del cliente" novalidate></form>
 
-          <!-- Fases 1 y 2 (js/predict.js): en el prototipo es <aside class="result">. -->
-          <div class="placeholder">
-            <span class="placeholder-tag">Fases 1 y 2</span>
-            <b>Resultado en vivo</b>
-            <p>
-              Anillo de probabilidad, nivel de riesgo e ingreso en riesgo al mes y al año. En la Fase 2, si el modelo
-              acertó y las acciones que más bajan el riesgo, con un botón para probarlas.
-            </p>
-            <p class="caption">Usa <code>POST /predict</code> y, en la Fase 2, <code>POST /recommendations</code>.</p>
-          </div>
+          <aside class="result is-stale" id="result" aria-label="Resultado de la predicción">
+            <div class="result-top">
+              <div class="result-who">
+                <b id="r-who">Cliente de ejemplo</b>
+                <span id="r-id">9305-CDSKC</span>
+              </div>
+              <span class="live" id="r-live">En vivo</span>
+            </div>
+            <div class="ring-box" id="r-ring"></div>
+            <div class="result-verdict">
+              <span class="badge" id="r-badge" hidden></span>
+              <p id="r-verdict">Calculando…</p>
+              <span class="delta" id="r-delta" hidden></span>
+              <div class="scale" aria-label="Niveles de riesgo">
+                <span><i class="dot" data-risk="low"></i>Bajo &lt; 30%</span>
+                <span><i class="dot" data-risk="medium"></i>Medio 30–59%</span>
+                <span><i class="dot" data-risk="high"></i>Alto ≥ 60%</span>
+              </div>
+            </div>
+            <div class="alert alert-error result-error" id="r-error" role="alert" hidden>
+              <span id="r-error-text"></span>
+              <button class="text-btn" type="button" id="r-retry">Intentar de nuevo</button>
+            </div>
+            <hr />
+            <dl class="kv">
+              <div>
+                <dt>Ingreso en riesgo</dt>
+                <dd id="r-month">—</dd>
+              </div>
+              <div>
+                <dt>En un año</dt>
+                <dd id="r-year">—</dd>
+              </div>
+            </dl>
+            <hr />
+            <!-- Fase 2 (js/predict.js): en el prototipo son <div class="truth"> y <ol class="recs">. -->
+            <div class="placeholder placeholder-small">
+              <span class="placeholder-tag">Fase 2</span>
+              <span>
+                Si el modelo acertó y cómo retenerlo. Usa <code>GET /samples</code> y
+                <code>POST /recommendations</code>.
+              </span>
+            </div>
+            <details class="payload">
+              <summary>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+                Ver la petición a la API
+              </summary>
+              <pre id="r-payload"></pre>
+            </details>
+          </aside>
         </div>
+      </div>
+
+      <!-- Barra con el resultado, en el celular, cuando el resultado no se ve -->
+      <div class="mini-result" id="mini-result" aria-hidden="true">
+        <b id="mini-value">—</b>
+        <span class="badge" id="mini-badge" hidden></span>
+        <button class="btn btn-sm btn-primary" type="button" id="mini-go" tabindex="-1">Ver resultado</button>
       </div>
     </main>
 

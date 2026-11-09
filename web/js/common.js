@@ -41,6 +41,11 @@ function setApiStatus(state, text, hint) {
   status.querySelector(".status-text").textContent = text;
 }
 
+// Mientras la API esté apagada, se vuelve a preguntar cada 10 segundos.
+// Así, si la encienden con la página abierta, el punto se pone verde solo.
+const RETRY_MS = 10000;
+let warned = false; // el aviso en la consola sale una sola vez
+
 async function checkApi() {
   try {
     const health = await getHealth();
@@ -48,7 +53,9 @@ async function checkApi() {
     showDemoRibbon(health.model_version === "demo");
   } catch (error) {
     setApiStatus("offline", "API desconectada", "Enciéndela con: flask --app src/api/app run");
-    console.warn(error.message);
+    if (!warned) console.warn(error.message);
+    warned = true;
+    setTimeout(checkApi, RETRY_MS);
   }
 }
 

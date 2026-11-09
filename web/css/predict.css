@@ -39,11 +39,6 @@
   }
 }
 
-/* Recuadros de "en construcción" mientras no estén el formulario y el resultado */
-.predict-grid > .placeholder {
-  min-height: 420px;
-}
-
 /* --- Formulario: listas agrupadas, como en Ajustes de iOS ---------------- */
 .form {
   display: grid;
@@ -539,4 +534,50 @@
   .mini-result.on {
     display: flex;
   }
+}
+
+/* --- Lo que agrega la conexión con la API ---------------------------------
+   En el prototipo el modelo corría en el navegador. Aquí la respuesta llega
+   de la API, así que hace falta mostrar cuándo espera, si falla y qué dato
+   rechazó. */
+
+/* "Ver resultado" (celular) no deja el resultado debajo de la barra de arriba */
+.result {
+  scroll-margin-top: calc(var(--nav-h) + 16px);
+}
+
+/* Sin un resultado al día (al cargar o con un error), se ve más claro */
+.result.is-stale :is(.ring-box, .result-verdict, .kv) {
+  opacity: 0.45;
+}
+
+/* "Sin conexión": el punto de "En vivo" se pone rojo y deja de parpadear */
+.live.is-off::before {
+  background: var(--risk-high);
+  animation: none;
+}
+
+.result-error {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.result-error .text-btn {
+  padding: 0;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Campo que rechazó la API: el mensaje va en rojo, debajo del nombre */
+.row.has-error .row-note {
+  color: var(--risk-high-text);
+}
+
+/* Cargo total: más ancho, porque llega a miles */
+.field-num-wide {
+  width: 112px;
 }
