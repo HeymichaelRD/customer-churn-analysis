@@ -1,0 +1,583 @@
+/* =====================================================================
+   Estilos de la página Predecir (predict.html).
+   Salen del prototipo del diseño. Los estilos que comparten todas las
+   páginas (colores, botones, controles...) están en css/base.css.
+   ===================================================================== */
+
+/* --- Clientes de ejemplo ------------------------------------------------- */
+.samples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-bottom: 28px;
+}
+
+.samples-label {
+  font-size: 14px;
+  color: var(--fg-2);
+  margin-right: 4px;
+}
+
+/* --- Formulario y resultado, lado a lado --------------------------------- */
+.predict-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .predict-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+
+@media (max-width: 860px) {
+  .predict-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Formulario: listas agrupadas, como en Ajustes de iOS ---------------- */
+.form {
+  display: grid;
+  gap: 30px;
+  min-width: 0;
+}
+
+.group {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.group-title {
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.group-list {
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding: 9px 16px;
+}
+
+.row + .row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.row-label {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  font-size: 16px;
+  letter-spacing: -0.015em;
+}
+
+.row-label small {
+  font-size: 13px;
+  color: var(--fg-3);
+  letter-spacing: -0.005em;
+}
+
+.row-label small:empty {
+  display: none;
+}
+
+.row .seg {
+  flex: 0 1 300px;
+}
+
+.row-range {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 4px;
+  padding-block: 12px 10px;
+}
+
+.row-range .range {
+  grid-column: 1 / -1;
+}
+
+.num-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg-2);
+  font-size: 14px;
+}
+
+.row.is-off .row-label > span {
+  color: var(--fg-2);
+}
+
+.row-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 520px) {
+  .row-seg {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-block: 12px;
+  }
+
+  .row .seg {
+    flex: none;
+  }
+
+  .row-select {
+    flex-wrap: wrap;
+  }
+}
+
+/* --- Resultado ----------------------------------------------------------- */
+.result {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + var(--nav-h) + 20px);
+  display: grid;
+  gap: 0;
+  padding: 26px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  min-width: 0;
+}
+
+.result-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.result-who {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.result-who b {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.result-who span {
+  font-size: 13px;
+  color: var(--fg-3);
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--risk-low);
+  animation: blink 2s ease-in-out infinite;
+}
+
+.result .ring-box {
+  --ring: 210px;
+  margin: 22px auto 16px;
+}
+
+.result-verdict {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.result-verdict p {
+  font-size: 15px;
+  color: var(--fg-2);
+}
+
+.result-verdict p b {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.scale {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--fg-3);
+  flex-wrap: wrap;
+}
+
+.scale span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--fill);
+  font-size: 13px;
+  color: var(--fg-2);
+}
+
+.delta b {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.result hr {
+  width: 100%;
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 0;
+}
+
+.kv div {
+  display: grid;
+  gap: 2px;
+}
+
+.kv dt {
+  font-size: 13px;
+  color: var(--fg-2);
+}
+
+.kv dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.kv dd small {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-2);
+  letter-spacing: 0;
+}
+
+.truth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--bg);
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.truth b {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.truth svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.truth.ok svg {
+  color: var(--risk-low);
+}
+
+.truth.miss svg {
+  color: var(--risk-medium);
+}
+
+.truth.na svg {
+  color: var(--fg-3);
+}
+
+/* --- Recomendaciones de retención ---------------------------------------- */
+.recs-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.recs-head h3 {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.recs {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rec {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--bg);
+}
+
+.rec-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.rec-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fg-2);
+}
+
+.rec-meta b {
+  color: var(--risk-low-text);
+  font-weight: 600;
+}
+
+.rec-bar {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--fill);
+  overflow: hidden;
+}
+
+.rec-bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+}
+
+.rec-bar .from {
+  background: var(--fill-2);
+}
+
+.rec-bar .to {
+  background: var(--accent);
+}
+
+.rec .btn-sm {
+  grid-row: 1 / 3;
+  grid-column: 2;
+}
+
+.empty-note {
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: var(--bg);
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+/* --- Petición a la API (para curiosos) ----------------------------------- */
+.payload {
+  margin-top: 16px;
+}
+
+.payload summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--accent-text);
+  font-size: 14px;
+  list-style: none;
+  border-radius: 6px;
+}
+
+.payload summary::-webkit-details-marker {
+  display: none;
+}
+
+.payload summary svg {
+  width: 13px;
+  height: 13px;
+  transition: transform 0.2s var(--ease);
+}
+
+.payload[open] summary svg {
+  transform: rotate(90deg);
+}
+
+.payload pre {
+  margin: 10px 0 0;
+  max-height: 260px;
+  overflow: auto;
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--fg-2);
+  letter-spacing: 0;
+}
+
+.payload pre b {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+/* --- Barra flotante con el resultado (solo en el celular) ---------------- */
+.mini-result {
+  display: none;
+  position: fixed;
+  z-index: 45;
+  left: max(12px, env(safe-area-inset-left, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 16px;
+  border-radius: 18px;
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: var(--shadow-float);
+  border: 1px solid var(--hairline);
+  transition:
+    transform 0.35s var(--ease),
+    opacity 0.35s var(--ease);
+}
+
+.mini-result b {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.mini-result .badge {
+  height: 26px;
+  font-size: 13px;
+}
+
+.mini-result .btn {
+  margin-left: auto;
+}
+
+.mini-result.is-away {
+  transform: translateY(140%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .mini-result.on {
+    display: flex;
+  }
+}
+
+/* --- Lo que agrega la conexión con la API ---------------------------------
+   En el prototipo el modelo corría en el navegador. Aquí la respuesta llega
+   de la API, así que hace falta mostrar cuándo espera, si falla y qué dato
+   rechazó. */
+
+/* "Ver resultado" (celular) no deja el resultado debajo de la barra de arriba */
+.result {
+  scroll-margin-top: calc(var(--nav-h) + 16px);
+}
+
+/* Sin un resultado al día (al cargar o con un error), se ve más claro */
+.result.is-stale :is(.ring-box, .result-verdict, .kv) {
+  opacity: 0.45;
+}
+
+/* "Sin conexión": el punto de "En vivo" se pone rojo y deja de parpadear */
+.live.is-off::before {
+  background: var(--risk-high);
+  animation: none;
+}
+
+.result-error {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.result-error .text-btn {
+  padding: 0;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Campo que rechazó la API: el mensaje va en rojo, debajo del nombre */
+.row.has-error .row-note {
+  color: var(--risk-high-text);
+}
+
+/* Cargo total: más ancho, porque llega a miles */
+.field-num-wide {
+  width: 112px;
+}

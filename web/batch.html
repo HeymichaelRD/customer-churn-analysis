@@ -2,85 +2,125 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Por lotes · Customer Churn Analysis</title>
-    <meta name="description" content="Sube una lista de clientes y obtén su riesgo de abandono, ordenado de mayor a menor." />
+    <meta
+      name="description"
+      content="Sube una lista de clientes y obtén su riesgo de abandono, ordenado de mayor a menor."
+    />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f5f73' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230071e3' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
     />
+    <!-- Tema claro u oscuro: va primero para que la página no parpadee -->
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/base.css" />
-    <script type="module" src="js/common.js"></script>
-    <!-- Estilos y código propios de esta página: créalos y enlázalos aquí.
     <link rel="stylesheet" href="css/batch.css" />
+    <script type="module" src="js/common.js"></script>
+    <!-- El código de esta página va en js/batch.js: créalo y quita este comentario.
     <script type="module" src="js/batch.js"></script>
     -->
   </head>
   <body>
-    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <a class="skip" href="#main">Saltar al contenido</a>
 
-    <header class="site-header">
-      <div class="container header-inner">
+    <header class="nav">
+      <div class="wrap nav-inner">
         <a class="brand" href="index.html">
           <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
             <polyline points="3 7 9 13 13 9 21 17" />
             <polyline points="15 17 21 17 21 11" />
           </svg>
-          Customer Churn Analysis
+          <span>Customer Churn Analysis</span>
         </a>
-        <nav class="site-nav" aria-label="Principal">
-          <ul class="nav-list">
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="predict.html">Predecir</a></li>
-            <li><a href="batch.html" aria-current="page">Por lotes</a></li>
-            <li><a href="insights.html">Hallazgos</a></li>
-            <li><a href="about.html">Sobre el proyecto</a></li>
-          </ul>
+        <nav class="nav-links" aria-label="Principal">
+          <a href="index.html">Inicio</a>
+          <a href="predict.html">Predecir</a>
+          <a href="batch.html" aria-current="page">Por lotes</a>
+          <a href="insights.html">Hallazgos</a>
+          <a href="about.html">Sobre el proyecto</a>
         </nav>
-        <p class="api-status" id="api-status" data-state="checking" role="status">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span class="status-text">Conectando con la API…</span>
-        </p>
+        <div class="nav-tools">
+          <span class="status" id="api-status" data-state="checking" role="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-text">Conectando…</span>
+          </span>
+          <button class="icon-btn" id="theme-btn" type="button" aria-label="Cambiar a modo oscuro"></button>
+        </div>
       </div>
     </header>
 
-    <div class="demo-banner" id="demo-banner" hidden>
-      <p class="container">
-        <strong>Modo demostración:</strong> la API usa un modelo provisional mientras llega el modelo real del equipo
-        de Modelos. Los resultados son solo de ejemplo.
-      </p>
+    <div class="ribbon" id="demo-ribbon" hidden>
+      <div class="wrap ribbon-inner">
+        <p>
+          <strong>Modo demostración.</strong> El modelo es provisional y los resultados son de ejemplo, mientras llega
+          el modelo real del equipo de Modelos.
+        </p>
+        <button class="icon-btn" id="demo-ribbon-close" type="button" aria-label="Cerrar aviso">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-x" /></svg>
+        </button>
+      </div>
     </div>
 
-    <main id="main" class="container">
-      <section class="page-intro">
-        <p class="eyebrow">Predicción por lotes</p>
-        <h1>¿A quién hay que llamar esta semana?</h1>
+    <main id="main" class="page" tabindex="-1">
+      <div class="wrap page-head">
+        <p class="eyebrow eyebrow-accent">Predicción por lotes</p>
+        <h1 class="title">¿A quién hay que llamar esta semana?</h1>
         <p class="lead">
-          Sube un archivo CSV con muchos clientes y obtén la lista ordenada por riesgo, con el ingreso total que está
-          en juego.
-        </p>
-      </section>
-
-      <section class="card placeholder section" aria-labelledby="todo-title">
-        <h2 id="todo-title">🚧 En construcción</h2>
-        <p>Aquí irá <strong>(Fase 3)</strong>:</p>
-        <ul>
-          <li>Plantilla CSV para descargar, con las columnas que espera la API.</li>
-          <li>Subir el archivo (<code>POST /predict/batch</code>), incluso el dataset completo de 7,043 clientes.</li>
-          <li>Resumen: clientes por nivel de riesgo e ingreso mensual en riesgo.</li>
-          <li>Tabla ordenada por riesgo y filtrable, con las filas que tuvieron errores.</li>
-          <li>Descargar los resultados en CSV.</li>
-        </ul>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="container">
-        <p>
-          Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026 ·
-          <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
+          Sube un archivo CSV con tus clientes y obtén la lista ordenada por riesgo, con el ingreso que está en juego.
         </p>
       </div>
+
+      <div class="wrap placeholder-stack">
+        <!-- Fase 3 (js/batch.js): en el prototipo es <div class="drop">. -->
+        <div class="placeholder placeholder-small">
+          <span class="placeholder-tag">Fase 3</span>
+          <span>
+            Zona para soltar el CSV, con los botones Elegir archivo, Usar el dataset completo y Plantilla. Usa
+            <code>POST /predict/batch</code>.
+          </span>
+        </div>
+
+        <!-- Fase 3 (js/batch.js): en el prototipo es <div id="batch-results">. -->
+        <div class="placeholder">
+          <span class="placeholder-tag">Fase 3</span>
+          <b>Resultados</b>
+          <p>
+            Cuatro cifras de resumen, una barra con los clientes por nivel de riesgo y la tabla ordenada por riesgo, con
+            filtro, buscador y descarga en CSV. Cada fila abre al cliente en Predecir.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <span>Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026</span>
+        <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
+      </div>
     </footer>
+
+    <nav class="tabbar" aria-label="Principal en el celular">
+      <a href="index.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-home" /></svg>
+        <span>Inicio</span>
+      </a>
+      <a href="predict.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-gauge" /></svg>
+        <span>Predecir</span>
+      </a>
+      <a href="batch.html" aria-current="page">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-list" /></svg>
+        <span>Por lotes</span>
+      </a>
+      <a href="insights.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chart" /></svg>
+        <span>Hallazgos</span>
+      </a>
+      <a href="about.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-info" /></svg>
+        <span>Proyecto</span>
+      </a>
+    </nav>
   </body>
 </html>

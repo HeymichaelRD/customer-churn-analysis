@@ -8,6 +8,7 @@
 //    import { FIELDS, valueLabel, formatPercent } from "./labels.js";
 //    valueLabel("Contract", "Month-to-month")  → "Mes a mes"
 //    formatPercent(0.265)                       → "26.5%"
+//    formatPercent(0.79, 0)                     → "79%" (sin decimales)
 // =====================================================================
 
 const YES_NO = [
@@ -22,6 +23,7 @@ const INTERNET_ADDON = [...YES_NO, { value: "No internet service", label: "Sin s
  * Los 19 campos que recibe POST /predict.
  * - type "choice": se elige una opción; `value` es lo que se envía a la API.
  * - type "integer" / "number": se escribe un número; `min` es el mínimo permitido.
+ * - `hint` (opcional): texto corto que va debajo del nombre del campo.
  */
 export const FIELDS = {
   gender: {
@@ -33,8 +35,9 @@ export const FIELDS = {
     ],
   },
   SeniorCitizen: {
-    label: "Adulto mayor (65 años o más)",
+    label: "Adulto mayor",
     type: "choice",
+    hint: "65 años o más",
     // Ojo: este campo se envía como número (1 o 0), no como texto.
     options: [
       { value: 1, label: "Sí" },
@@ -57,7 +60,7 @@ export const FIELDS = {
     options: [...YES_NO, { value: "No phone service", label: "Sin servicio telefónico" }],
   },
   InternetService: {
-    label: "Servicio de internet",
+    label: "Internet",
     type: "choice",
     options: [
       { value: "DSL", label: "DSL" },
@@ -72,7 +75,7 @@ export const FIELDS = {
   StreamingTV: { label: "TV por streaming", type: "choice", options: INTERNET_ADDON },
   StreamingMovies: { label: "Películas por streaming", type: "choice", options: INTERNET_ADDON },
   Contract: {
-    label: "Tipo de contrato",
+    label: "Contrato",
     type: "choice",
     options: [
       { value: "Month-to-month", label: "Mes a mes" },
@@ -80,7 +83,7 @@ export const FIELDS = {
       { value: "Two year", label: "Dos años" },
     ],
   },
-  PaperlessBilling: { label: "Factura electrónica (sin papel)", type: "choice", options: YES_NO },
+  PaperlessBilling: { label: "Factura electrónica", type: "choice", hint: "Sin papel", options: YES_NO },
   PaymentMethod: {
     label: "Método de pago",
     type: "choice",
@@ -155,16 +158,29 @@ export function valueLabel(field, value) {
 }
 
 // --- Formato de números (estilo de República Dominicana) ----------------
+// El segundo valor, opcional, es la cantidad de decimales.
 const LOCALE = "es-DO";
-const percentFormat = new Intl.NumberFormat(LOCALE, { style: "percent", maximumFractionDigits: 1 });
-const moneyFormat = new Intl.NumberFormat(LOCALE, { style: "currency", currency: "USD" });
-const numberFormat = new Intl.NumberFormat(LOCALE);
+const formats = new Map();
 
-/** formatPercent(0.265) → "26.5%" */
-export const formatPercent = (value) => percentFormat.format(value);
+/** Crea cada formato una sola vez y lo reutiliza (crearlos es lento). */
+function numberFormat(options) {
+  const key = JSON.stringify(options);
+  if (!formats.has(key)) formats.set(key, new Intl.NumberFormat(LOCALE, options));
+  return formats.get(key);
+}
 
-/** formatMoney(139130.85) → "US$139,130.85" */
-export const formatMoney = (value) => moneyFormat.format(value);
+/** formatPercent(0.265) → "26.5%"   formatPercent(0.79, 0) → "79%" */
+export const formatPercent = (value, decimals = 1) =>
+  numberFormat({ style: "percent", maximumFractionDigits: decimals }).format(value);
 
-/** formatNumber(7043) → "7,043" */
-export const formatNumber = (value) => numberFormat.format(value);
+/** formatMoney(139130.85) → "US$139,130.85"   formatMoney(139130.85, 0) → "US$139,131" */
+export const formatMoney = (value, decimals = 2) =>
+  numberFormat({
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(value);
+
+/** formatNumber(7043) → "7,043"   formatNumber(2.4321, 1) → "2.4" */
+export const formatNumber = (value, decimals = 3) => numberFormat({ maximumFractionDigits: decimals }).format(value);

@@ -54,8 +54,16 @@ flowchart LR
 - **Ingreso en riesgo.** Es el cargo mensual multiplicado por la probabilidad de baja, al mes y al año. Traduce el modelo a dinero.
 - **Recomendaciones de retención.** La API prueba acciones como ofrecer un contrato de un año, pasar el pago a automático o activar el soporte técnico. Luego muestra las 3 que más bajan el riesgo, por ejemplo: "Ofrecer un contrato de un año: de 78% a 46%". Se acompaña de un **simulador**: cambias un dato del cliente y ves cómo cambia su riesgo.
 - **Clientes de ejemplo.** Unos botones cargan clientes reales del dataset: de alto riesgo, medio, leal o uno al azar. La web muestra si el modelo **acertó**, comparando con lo que pasó de verdad.
-- **Hallazgos.** Gráficos con Chart.js y un selector para cambiar el criterio: contrato, antigüedad, internet, forma de pago… Cada gráfico lleva su hallazgo explicado en una frase.
+- **Hallazgos.** Gráficos interactivos hechos con HTML y CSS, sin librerías, y un selector para cambiar el criterio: contrato, antigüedad, internet, forma de pago… Cada gráfico lleva su hallazgo explicado en una frase.
 - **Por lotes.** Responde a la pregunta "¿a quién hay que llamar esta semana?", incluso con el dataset completo de 7,043 clientes.
+
+### 🎨 Diseño
+
+El diseño sale del prototipo que preparó Michael: estilo Apple, con modo claro y modo oscuro. En el celular, el menú pasa a una barra con íconos abajo de la pantalla.
+
+- Las 5 páginas ya tienen el encabezado, el pie, los textos fijos y su propia hoja de estilos (`css/<página>.css`), sacada del prototipo.
+- Lo que falta en cada página está marcado con un **recuadro punteado**, que indica la fase y la ruta de la API que usa. En cada fase, Michael lo reemplaza por el contenido real, siguiendo el prototipo.
+- Los componentes del prototipo ya están listos en `web/js/ui.js`: el anillo de probabilidad, la etiqueta de riesgo, el control segmentado, el mensaje flotante y el globo de ayuda de los gráficos.
 
 ---
 
@@ -98,7 +106,7 @@ Cada fase termina con un **Pull Request de `api-web` a `main`**, que revisa Mich
 | Fase | Qué incluye | Cuándo | Estado |
 |---|---|---|---|
 | **0. Preparación** | La base de la API (`/health`) y de las 5 páginas, los archivos compartidos y el contrato v1 | Días 1 y 2 | ✅ Hecha |
-| **1. Primera versión completa** | `schema.py`, `POST /predict` con el modelo de prueba y sus pruebas. `predict.html` con el formulario, el resultado, el ingreso en riesgo y los errores | Semana 1 | 🔨 La API está hecha (PR #5). Falta `predict.html` |
+| **1. Primera versión completa** | `schema.py`, `POST /predict` con el modelo de prueba y sus pruebas. `predict.html` con el formulario, el resultado, el ingreso en riesgo y los errores | Semana 1 | ✅ La API (PR #5) y `predict.html`, con el nuevo diseño |
 | **2. Lo que la hace destacar** | Clientes de ejemplo, recomendaciones y simulador, Hallazgos, Inicio y Sobre el proyecto | Semana 2 | ⏳ |
 | **3. Modelo real y lotes** | El modelo del equipo de Modelos, `/model-info`, `POST /predict/batch` y `batch.html` | Semana 3 | ⏳ |
 | **4. Pulido y demo** | Revisar la vista en celular, la accesibilidad y los textos. Completar el README y preparar el guion de la demo. Publicar en internet es opcional | Semana 4 | ⏳ |
@@ -113,15 +121,12 @@ Cada persona trabaja **solo en sus archivos**. Así dos personas no cambian el m
 
 | Persona | Responsable de | Archivos |
 |---|---|---|
-| Michael (mantenedor del repo) | Archivos compartidos, contratos con los otros equipos, conectar el modelo real, predicción por lotes, README y revisión de los Pull Requests | `web/css/base.css`, `web/js/config.js`, `web/js/api.js`, `web/js/labels.js`, `web/js/common.js`, `src/api/batch.py` y `web/batch.html` |
-| Persona API: Christopher ([chpujols-DS07](https://github.com/chpujols-DS07)) | La API y sus pruebas | `src/api/` (menos `batch.py`) y `tests/` |
-| Persona Web 1: *(por asignar)* | Página Predecir | `web/predict.html`, `web/css/predict.css` y `web/js/predict.js` |
-| Persona Web 2: *(por asignar)* | Páginas Inicio, Hallazgos y Sobre el proyecto | `web/index.html`, `web/insights.html`, `web/about.html` y sus archivos `.css` y `.js` |
-| 4.ª persona, si la hay | Página Por lotes, en lugar de Michael | `web/batch.html`, `web/css/batch.css` y `web/js/batch.js` |
+| Michael (mantenedor del repo) | Toda la página web (las 5 páginas y los archivos compartidos), contratos con los otros equipos, conectar el modelo real, predicción por lotes, README y revisión de los Pull Requests | `web/` y `src/api/batch.py` |
+| Christopher ([chpujols-DS07](https://github.com/chpujols-DS07)) | La API y sus pruebas | `src/api/` (menos `batch.py`) y `tests/` |
 
 > [!IMPORTANT]
-> - Si necesitas cambiar un **archivo compartido** (`base.css`, `api.js`, `labels.js`…), pídeselo a Michael. No lo edites tú.
-> - El **encabezado y el pie** son iguales en las 5 páginas, así que no los cambies en la tuya. Si hace falta un cambio, Michael lo hace en todas a la vez.
+> - Si necesitas un cambio en la web o en `src/api/batch.py`, pídeselo a Michael. Si es en el resto de la API o en las pruebas, a Christopher.
+> - El **encabezado y el pie** son iguales en las 5 páginas: si cambia uno, se cambia en todas a la vez.
 
 ---
 
@@ -154,10 +159,11 @@ Abre `http://localhost:8000` en el navegador. Arriba a la derecha, un punto verd
 - **Usa los archivos compartidos** en lugar de repetir código:
   - [`web/js/api.js`](../web/js/api.js) se encarga de todas las llamadas a la API. No uses `fetch` directamente: `api.js` ya maneja los errores y los tiempos de espera.
   - [`web/js/labels.js`](../web/js/labels.js) traduce los campos y valores al español (`"Month-to-month"` → "Mes a mes") y da formato a las cifras con `formatPercent` y `formatMoney`.
-  - [`web/css/base.css`](../web/css/base.css) define las variables de colores y espacios. Escribe `color: var(--color-primary)`, nunca un color a mano como `#0f5f73`. **El diseño visual todavía puede cambiar**, y si usas las variables tu página se actualiza sola.
+  - [`web/css/base.css`](../web/css/base.css) define las variables de colores, letras y sombras, en modo claro y en modo oscuro. Escribe `color: var(--fg-2)`, nunca un color a mano como `#6e6e73`. Así tu página se ve bien sola en los dos modos.
+  - [`web/js/ui.js`](../web/js/ui.js) tiene los componentes del diseño. Por ejemplo, `mountRing` dibuja el anillo de probabilidad y `setBadge` pone la etiqueta "Riesgo alto". Al principio del archivo está explicado cómo usar cada uno.
 - El código va en inglés (variables, funciones y archivos). Los comentarios y los textos de la página van en español.
 - Los nombres de archivo van sin tildes, sin ñ y sin espacios.
-- Cada página enlaza su propia hoja de estilos y su propio código, por ejemplo `css/predict.css` y `js/predict.js`. En el `<head>` de cada página hay un comentario que indica dónde hacerlo.
+- Cada página ya enlaza su hoja de estilos, por ejemplo `css/predict.css`, con los estilos del prototipo. Su código, por ejemplo `js/predict.js`, se crea y se enlaza donde indica el comentario del `<head>`.
 
 ### Antes del Pull Request de una fase
 
@@ -176,7 +182,7 @@ Mientras tanto la API usa el modelo de prueba, así que nadie se queda bloqueado
 |---|---|---|---|
 | 🤖 Modelos | Los detalles están en la lista de abajo | 3 | ⏳ Pendiente |
 | 🧹🔍 Limpieza y EDA | El nombre del archivo limpio en `data/processed/`. Saber qué hacen con los 11 `TotalCharges` vacíos (proponemos tratarlos como 0). Sus 4 o 5 hallazgos principales, en una frase cada uno | 2 | ⏳ Pendiente |
-| 📊 Dashboard | Una paleta de colores común, para que la web y Power BI se vean como un solo proyecto | Al elegir el diseño | ⏳ Pendiente |
+| 📊 Dashboard | Una paleta de colores común, para que la web y Power BI se vean como un solo proyecto. Proponemos la de la web: azul `#0071e3` y, para el riesgo, verde `#34c759`, naranja `#ff9500` y rojo `#ff3b30` | 2 | ⏳ Pendiente |
 | ⚙️ RPA (idea opcional) | Su bot podría usar `POST /predict/batch`, por ejemplo para generar cada semana la lista de clientes en riesgo | — | 💡 Propuesta |
 
 **Lo que necesitamos del equipo de Modelos:**
@@ -191,7 +197,5 @@ Mientras tanto la API usa el modelo de prueba, así que nadie se queda bloqueado
 
 ## ❓ Pendiente de decidir
 
-- Los nombres para la tabla [Quién hace qué](#-quién-hace-qué).
-- El diseño visual definitivo de la web. Hay propuestas y se elegirá más adelante.
 - Los niveles de riesgo definitivos, junto con el equipo de Modelos.
 - Si al final publicamos la web en internet (es opcional).

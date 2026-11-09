@@ -2,97 +2,172 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Predecir · Customer Churn Analysis</title>
     <meta name="description" content="Estima el riesgo de que un cliente abandone la empresa." />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f5f73' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230071e3' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
     />
+    <!-- Tema claro u oscuro: va primero para que la página no parpadee -->
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/base.css" />
-    <script type="module" src="js/common.js"></script>
-    <!-- Estilos y código propios de esta página: créalos y enlázalos aquí.
     <link rel="stylesheet" href="css/predict.css" />
+    <script type="module" src="js/common.js"></script>
     <script type="module" src="js/predict.js"></script>
-    -->
   </head>
   <body>
-    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <a class="skip" href="#main">Saltar al contenido</a>
 
-    <header class="site-header">
-      <div class="container header-inner">
+    <header class="nav">
+      <div class="wrap nav-inner">
         <a class="brand" href="index.html">
           <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
             <polyline points="3 7 9 13 13 9 21 17" />
             <polyline points="15 17 21 17 21 11" />
           </svg>
-          Customer Churn Analysis
+          <span>Customer Churn Analysis</span>
         </a>
-        <nav class="site-nav" aria-label="Principal">
-          <ul class="nav-list">
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="predict.html" aria-current="page">Predecir</a></li>
-            <li><a href="batch.html">Por lotes</a></li>
-            <li><a href="insights.html">Hallazgos</a></li>
-            <li><a href="about.html">Sobre el proyecto</a></li>
-          </ul>
+        <nav class="nav-links" aria-label="Principal">
+          <a href="index.html">Inicio</a>
+          <a href="predict.html" aria-current="page">Predecir</a>
+          <a href="batch.html">Por lotes</a>
+          <a href="insights.html">Hallazgos</a>
+          <a href="about.html">Sobre el proyecto</a>
         </nav>
-        <p class="api-status" id="api-status" data-state="checking" role="status">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span class="status-text">Conectando con la API…</span>
-        </p>
+        <div class="nav-tools">
+          <span class="status" id="api-status" data-state="checking" role="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-text">Conectando…</span>
+          </span>
+          <button class="icon-btn" id="theme-btn" type="button" aria-label="Cambiar a modo oscuro"></button>
+        </div>
       </div>
     </header>
 
-    <div class="demo-banner" id="demo-banner" hidden>
-      <p class="container">
-        <strong>Modo demostración:</strong> la API usa un modelo provisional mientras llega el modelo real del equipo
-        de Modelos. Los resultados son solo de ejemplo.
-      </p>
+    <div class="ribbon" id="demo-ribbon" hidden>
+      <div class="wrap ribbon-inner">
+        <p>
+          <strong>Modo demostración.</strong> El modelo es provisional y los resultados son de ejemplo, mientras llega
+          el modelo real del equipo de Modelos.
+        </p>
+        <button class="icon-btn" id="demo-ribbon-close" type="button" aria-label="Cerrar aviso">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-x" /></svg>
+        </button>
+      </div>
     </div>
 
-    <main id="main" class="container">
-      <section class="page-intro">
-        <p class="eyebrow">Predicción individual</p>
-        <h1>Predecir el riesgo de un cliente</h1>
+    <main id="main" class="page" tabindex="-1">
+      <div class="wrap page-head">
+        <p class="eyebrow eyebrow-accent">Predicción individual</p>
+        <h1 class="title">Predecir el riesgo de un cliente</h1>
         <p class="lead">
-          Completa los datos del cliente y el modelo estimará la probabilidad de que abandone la empresa, cuánto
-          ingreso está en riesgo y qué hacer para retenerlo.
-        </p>
-      </section>
-
-      <section class="card placeholder section" aria-labelledby="todo-title">
-        <h2 id="todo-title">🚧 En construcción</h2>
-        <p>Aquí irá <strong>(Fase 1)</strong>:</p>
-        <ul>
-          <li>
-            Formulario con los 19 campos en 3 grupos (Perfil, Servicios, Cuenta), usando <code>FIELD_GROUPS</code> y
-            <code>FIELDS</code> de <code>js/labels.js</code>.
-          </li>
-          <li>
-            Reglas de coherencia: sin teléfono, "Líneas múltiples" queda en "Sin servicio telefónico"; sin internet,
-            los 6 servicios de internet quedan en "Sin servicio de internet".
-          </li>
-          <li>Resultado (<code>POST /predict</code>): probabilidad, nivel de riesgo e ingreso en riesgo.</li>
-          <li>Errores marcados en el campo que indica la API.</li>
-        </ul>
-        <p>Y después <strong>(Fase 2)</strong>:</p>
-        <ul>
-          <li>
-            Clientes de ejemplo (alto riesgo, medio, leal, aleatorio) y si el modelo acertó (<code>GET /samples</code>).
-          </li>
-          <li>Recomendaciones de retención y simulador "¿qué pasaría si…?" (<code>POST /recommendations</code>).</li>
-        </ul>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="container">
-        <p>
-          Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026 ·
-          <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
+          Cambia cualquier dato y el resultado se actualiza al instante. Así también sirve de simulador: prueba qué
+          pasaría si el cliente cambia de contrato o de forma de pago.
         </p>
       </div>
+
+      <div class="wrap placeholder-stack">
+        <!-- Fase 2 (js/predict.js): en el prototipo es <div class="samples">. -->
+        <div class="placeholder placeholder-small">
+          <span class="placeholder-tag">Fase 2</span>
+          <span>Clientes de ejemplo: alto riesgo, riesgo medio, leal y al azar. Usa <code>GET /samples</code>.</span>
+        </div>
+
+        <div class="predict-grid">
+          <!-- js/predict.js arma el formulario con FIELD_GROUPS y FIELDS de js/labels.js -->
+          <form class="form" id="predict-form" aria-label="Datos del cliente" novalidate></form>
+
+          <aside class="result is-stale" id="result" aria-label="Resultado de la predicción">
+            <div class="result-top">
+              <div class="result-who">
+                <b id="r-who">Cliente de ejemplo</b>
+                <span id="r-id">9305-CDSKC</span>
+              </div>
+              <span class="live" id="r-live">En vivo</span>
+            </div>
+            <div class="ring-box" id="r-ring"></div>
+            <div class="result-verdict">
+              <span class="badge" id="r-badge" hidden></span>
+              <p id="r-verdict">Calculando…</p>
+              <span class="delta" id="r-delta" hidden></span>
+              <div class="scale" aria-label="Niveles de riesgo">
+                <span><i class="dot" data-risk="low"></i>Bajo &lt; 30%</span>
+                <span><i class="dot" data-risk="medium"></i>Medio 30–59%</span>
+                <span><i class="dot" data-risk="high"></i>Alto ≥ 60%</span>
+              </div>
+            </div>
+            <div class="alert alert-error result-error" id="r-error" role="alert" hidden>
+              <span id="r-error-text"></span>
+              <button class="text-btn" type="button" id="r-retry">Intentar de nuevo</button>
+            </div>
+            <hr />
+            <dl class="kv">
+              <div>
+                <dt>Ingreso en riesgo</dt>
+                <dd id="r-month">—</dd>
+              </div>
+              <div>
+                <dt>En un año</dt>
+                <dd id="r-year">—</dd>
+              </div>
+            </dl>
+            <hr />
+            <!-- Fase 2 (js/predict.js): en el prototipo son <div class="truth"> y <ol class="recs">. -->
+            <div class="placeholder placeholder-small">
+              <span class="placeholder-tag">Fase 2</span>
+              <span>
+                Si el modelo acertó y cómo retenerlo. Usa <code>GET /samples</code> y
+                <code>POST /recommendations</code>.
+              </span>
+            </div>
+            <details class="payload">
+              <summary>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+                Ver la petición a la API
+              </summary>
+              <pre id="r-payload"></pre>
+            </details>
+          </aside>
+        </div>
+      </div>
+
+      <!-- Barra con el resultado, en el celular, cuando el resultado no se ve -->
+      <div class="mini-result" id="mini-result" aria-hidden="true">
+        <b id="mini-value">—</b>
+        <span class="badge" id="mini-badge" hidden></span>
+        <button class="btn btn-sm btn-primary" type="button" id="mini-go" tabindex="-1">Ver resultado</button>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <span>Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026</span>
+        <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
+      </div>
     </footer>
+
+    <nav class="tabbar" aria-label="Principal en el celular">
+      <a href="index.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-home" /></svg>
+        <span>Inicio</span>
+      </a>
+      <a href="predict.html" aria-current="page">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-gauge" /></svg>
+        <span>Predecir</span>
+      </a>
+      <a href="batch.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-list" /></svg>
+        <span>Por lotes</span>
+      </a>
+      <a href="insights.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chart" /></svg>
+        <span>Hallazgos</span>
+      </a>
+      <a href="about.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-info" /></svg>
+        <span>Proyecto</span>
+      </a>
+    </nav>
   </body>
 </html>
