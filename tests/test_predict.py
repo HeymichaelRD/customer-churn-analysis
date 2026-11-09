@@ -65,7 +65,7 @@ def test_new_customer_with_zero_charges_is_valid(client):
     assert response.status_code == 200
 
 
-def test_customer_without_phone_or_internet_is_valid(client):
+def test_customer_without_internet_is_valid(client):
     no_internet = {name: "No internet service" for name in
                    ["OnlineSecurity", "OnlineBackup", "DeviceProtection",
                     "TechSupport", "StreamingTV", "StreamingMovies"]}
@@ -107,7 +107,11 @@ def test_health_reports_the_model_version(client):
         ({"MonthlyCharges": "29.85"}, "MonthlyCharges"),          # texto
         ({"TotalCharges": -5}, "TotalCharges"),                   # negativo
         ({"customerID": "7590-VHVEG"}, "customerID"),             # campo fuera del contrato
+        ({"tenure": 10**400}, "tenure"),                          # entero gigante (no cabe en float)
+        ({"MonthlyCharges": 10**400}, "MonthlyCharges"),
+        ({"TotalCharges": 10**400}, "TotalCharges"),
         ({"MultipleLines": "No"}, "MultipleLines"),               # sin teléfono pero con líneas
+        ({"PhoneService": "Yes"}, "MultipleLines"),               # con teléfono pero "No phone service"
         ({"OnlineSecurity": "No internet service"}, "OnlineSecurity"),  # con internet
     ],
 )
@@ -121,9 +125,23 @@ def test_invalid_customer_returns_400_with_field(client, changes, field):
 
 
 def test_no_internet_requires_no_internet_service(client):
-    response = client.post("/predict", json=customer(InternetService="No"))
+    # Con teléfono, para que el único problema sea el de los servicios de internet
+    response = client.post(
+        "/predict", json=customer(PhoneService="Yes", MultipleLines="No", InternetService="No")
+    )
     assert response.status_code == 400
     assert response.get_json()["field"] == "OnlineSecurity"
+
+
+def test_customer_needs_phone_or_internet(client):
+    no_internet = {name: "No internet service" for name in
+                   ["OnlineSecurity", "OnlineBackup", "DeviceProtection",
+                    "TechSupport", "StreamingTV", "StreamingMovies"]}
+    # Sin teléfono (como el cliente de ejemplo) y además sin internet: coherente campo a campo,
+    # pero ese tipo de cliente no existe en los datos
+    response = client.post("/predict", json=customer(InternetService="No", **no_internet))
+    assert response.status_code == 400
+    assert response.get_json()["field"] == "PhoneService"
 
 
 def test_nan_is_rejected(client):

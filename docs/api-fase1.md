@@ -67,6 +67,7 @@ Los datos pasan por cinco revisiones, en este orden. **En el primer problema se 
 | 3 | ¿Sobra algún campo? | Se envía `customerID` | *El campo customerID no es parte del contrato* |
 | 4 | ¿Cada valor es válido? | `"Contract": "Mensual"` | *El campo Contract tiene un valor no permitido* |
 | 5 | ¿Los campos son coherentes entre sí? | Sin teléfono pero con `MultipleLines: "No"` | *Si PhoneService es "No", MultipleLines debe ser "No phone service"* |
+|   |   | Sin teléfono **y** sin internet | *El cliente debe tener al menos teléfono o internet* |
 
 ### Reglas por campo
 
@@ -82,6 +83,7 @@ Los datos pasan por cinco revisiones, en este orden. **En el primer problema se 
 
 - **`true` en lugar de `1`.** En Python, `True == 1`. Sin cuidado, un `true` enviado por error pasaría como un `1`. La validación compara el valor **y el tipo**.
 - **`NaN` o `Infinity`.** El lector de JSON de Python los acepta aunque el estándar no los permita. Si llegaran al modelo, la predicción no tendría sentido. Se rechazan.
+- **Números gigantes** como `10**400`. Python los lee como enteros, pero no caben en un número decimal y hacían fallar la API con un error 500. Ahora se rechazan con un 400, como cualquier dato inválido.
 
 ---
 
@@ -124,13 +126,14 @@ Cuando el equipo de Modelos entregue su archivo:
 
 ## 5. Decisiones para revisar
 
-Estas tres van **más allá de lo que dice el contrato**. Las tomé por las razones de abajo, pero se pueden cambiar si el equipo decide otra cosa.
+Estas cuatro van **más allá de lo que dice el contrato**. Las tomé por las razones de abajo, pero se pueden cambiar si el equipo decide otra cosa.
 
 | # | Decisión | Por qué | Si se prefiere lo contrario |
 |---|---|---|---|
 | 1 | **Se rechazan los campos que no están en el contrato** (por ejemplo, `customerID`) | Detecta errores de tipeo, como `contrato` en lugar de `Contract`, en vez de ignorarlos en silencio | La web debe enviar solo los 19 campos. Para ignorarlos, se borran 3 líneas en `validate_customer` |
 | 2 | **Reglas de coherencia en los dos sentidos:** con teléfono, `MultipleLines` no puede ser `"No phone service"`; con internet, los servicios no pueden ser `"No internet service"` | El contrato pide un solo sentido, pero en los 7,043 clientes del dataset se cumplen los dos. El modelo nunca vio esas combinaciones | Se quitan las dos reglas inversas en `_check_coherence` |
 | 3 | **`churn: true` desde 0.50** | Es el corte habitual mientras no se conozca el costo de cada error | Se cambia `CHURN_THRESHOLD` cuando Modelos lo defina |
+| 4 | **Se rechaza un cliente sin teléfono ni internet** (sugerido en la revisión del PR #5) | En el dataset no hay ninguno (0 de 7,043), así que el modelo nunca vio ese caso | Se quita la primera regla de `_check_coherence` |
 
 ---
 
@@ -140,7 +143,7 @@ Estas tres van **más allá de lo que dice el contrato**. Las tomé por las razo
 ```powershell
 pytest
 ```
-Deben pasar **28 pruebas**: las 3 que ya existían y 25 nuevas. Las nuevas cubren las respuestas correctas, los 14 tipos de error de la tabla de arriba, `NaN`, cuerpos que no son JSON y el método GET.
+Deben pasar **33 pruebas**: las 3 que ya existían y 30 nuevas. Las nuevas cubren las respuestas correctas, 18 tipos de datos inválidos, las reglas de coherencia en los dos sentidos, `NaN`, números gigantes, cuerpos que no son JSON y el método GET.
 
 **A mano**, con la API encendida (`flask --app src/api/app run`):
 ```powershell
@@ -155,6 +158,7 @@ Invoke-RestMethod http://127.0.0.1:5000/predict -Method Post -ContentType "appli
 - `SeniorCitizen` va como **número** (`0` o `1`), no como texto ni como `true`/`false`.
 - `tenure` debe ser un **entero**.
 - Si el cliente no tiene teléfono o internet, los campos que dependen de ellos deben llevar `"No phone service"` o `"No internet service"`. Lo más fácil es que el formulario los complete solo al elegir "No".
+- Un cliente debe tener **al menos** teléfono o internet: el formulario no debería permitir "No" en los dos.
 - Ante un 400, `error.field` dice qué casilla marcar y `error.message` ya viene en español, listo para mostrar.
 
 ---

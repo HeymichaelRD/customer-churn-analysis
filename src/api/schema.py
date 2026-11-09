@@ -64,12 +64,15 @@ class ValidationError(Exception):
 
 def _is_number(value):
     # En Python, True y False también son números (bool hereda de int): se excluyen.
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        return False
     # NaN e infinito llegan si alguien envía NaN o Infinity en el JSON: se excluyen.
-    return (
-        isinstance(value, (int, float))
-        and not isinstance(value, bool)
-        and math.isfinite(value)
-    )
+    # Un entero gigante (por ejemplo 10**400) no cabe en un float: math.isfinite lanza
+    # OverflowError. Se trata como número inválido para responder 400 y no 500.
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 def _check_field(name, value):
@@ -100,6 +103,12 @@ def _check_field(name, value):
 
 
 def _check_coherence(customer):
+    # Todo cliente tiene al menos teléfono o internet: en el dataset no hay ninguno sin los dos
+    # (0 de 7,043), así que el modelo nunca vio ese caso.
+    if customer["PhoneService"] == "No" and customer["InternetService"] == "No":
+        raise ValidationError(
+            "El cliente debe tener al menos teléfono o internet", "PhoneService"
+        )
     # Reglas del contrato: si no hay teléfono o internet, los servicios que dependen de ellos
     # deben decir "No phone service" o "No internet service".
     if customer["PhoneService"] == "No" and customer["MultipleLines"] != "No phone service":
