@@ -62,7 +62,7 @@ flowchart LR
 El diseño sale del prototipo que preparó Michael: estilo Apple, con modo claro y modo oscuro. En el celular, el menú pasa a una barra con íconos abajo de la pantalla.
 
 - Las 5 páginas ya tienen el encabezado, el pie, los textos fijos y su propia hoja de estilos (`css/<página>.css`), sacada del prototipo.
-- Lo que falta en cada página está marcado con un **recuadro punteado**, que indica la fase y la ruta de la API que usa. Quien hace la página lo reemplaza por el contenido real, siguiendo el prototipo.
+- Lo que falta en cada página está marcado con un **recuadro punteado**, que indica la fase y la ruta de la API que usa. En cada fase, Michael lo reemplaza por el contenido real, siguiendo el prototipo.
 - Los componentes del prototipo ya están listos en `web/js/ui.js`: el anillo de probabilidad, la etiqueta de riesgo, el control segmentado, el mensaje flotante y el globo de ayuda de los gráficos.
 
 ---
@@ -106,7 +106,7 @@ Cada fase termina con un **Pull Request de `api-web` a `main`**, que revisa Mich
 | Fase | Qué incluye | Cuándo | Estado |
 |---|---|---|---|
 | **0. Preparación** | La base de la API (`/health`) y de las 5 páginas, los archivos compartidos y el contrato v1 | Días 1 y 2 | ✅ Hecha |
-| **1. Primera versión completa** | `schema.py`, `POST /predict` con el modelo de prueba y sus pruebas. `predict.html` con el formulario, el resultado, el ingreso en riesgo y los errores | Semana 1 | 🔨 La API está hecha (PR #5). Falta `predict.html` |
+| **1. Primera versión completa** | `schema.py`, `POST /predict` con el modelo de prueba y sus pruebas. `predict.html` con el formulario, el resultado, el ingreso en riesgo y los errores | Semana 1 | ✅ La API (PR #5) y `predict.html`, con el nuevo diseño |
 | **2. Lo que la hace destacar** | Clientes de ejemplo, recomendaciones y simulador, Hallazgos, Inicio y Sobre el proyecto | Semana 2 | ⏳ |
 | **3. Modelo real y lotes** | El modelo del equipo de Modelos, `/model-info`, `POST /predict/batch` y `batch.html` | Semana 3 | ⏳ |
 | **4. Pulido y demo** | Revisar la vista en celular, la accesibilidad y los textos. Completar el README y preparar el guion de la demo. Publicar en internet es opcional | Semana 4 | ⏳ |
@@ -121,15 +121,12 @@ Cada persona trabaja **solo en sus archivos**. Así dos personas no cambian el m
 
 | Persona | Responsable de | Archivos |
 |---|---|---|
-| Michael (mantenedor del repo) | Archivos compartidos, contratos con los otros equipos, conectar el modelo real, predicción por lotes, README y revisión de los Pull Requests | `web/css/base.css`, `web/js/config.js`, `web/js/api.js`, `web/js/labels.js`, `web/js/common.js`, `web/js/ui.js`, `web/js/theme.js`, `web/img/icons.svg`, `web/fonts/`, `src/api/batch.py` y `web/batch.html` |
-| Persona API: Christopher ([chpujols-DS07](https://github.com/chpujols-DS07)) | La API y sus pruebas | `src/api/` (menos `batch.py`) y `tests/` |
-| Persona Web 1: *(por asignar)* | Página Predecir | `web/predict.html`, `web/css/predict.css` y `web/js/predict.js` |
-| Persona Web 2: *(por asignar)* | Páginas Inicio, Hallazgos y Sobre el proyecto | `web/index.html`, `web/insights.html`, `web/about.html` y sus archivos `.css` y `.js` |
-| 4.ª persona, si la hay | Página Por lotes, en lugar de Michael | `web/batch.html`, `web/css/batch.css` y `web/js/batch.js` |
+| Michael (mantenedor del repo) | Toda la página web (las 5 páginas y los archivos compartidos), contratos con los otros equipos, conectar el modelo real, predicción por lotes, README y revisión de los Pull Requests | `web/` y `src/api/batch.py` |
+| Christopher ([chpujols-DS07](https://github.com/chpujols-DS07)) | La API y sus pruebas | `src/api/` (menos `batch.py`) y `tests/` |
 
 > [!IMPORTANT]
-> - Si necesitas cambiar un **archivo compartido** (`base.css`, `api.js`, `labels.js`…), pídeselo a Michael. No lo edites tú.
-> - El **encabezado y el pie** son iguales en las 5 páginas, así que no los cambies en la tuya. Si hace falta un cambio, Michael lo hace en todas a la vez.
+> - Si necesitas un cambio en la web o en `src/api/batch.py`, pídeselo a Michael. Si es en el resto de la API o en las pruebas, a Christopher.
+> - El **encabezado y el pie** son iguales en las 5 páginas: si cambia uno, se cambia en todas a la vez.
 
 ---
 
@@ -200,6 +197,5 @@ Mientras tanto la API usa el modelo de prueba, así que nadie se queda bloqueado
 
 ## ❓ Pendiente de decidir
 
-- Los nombres para la tabla [Quién hace qué](#-quién-hace-qué).
 - Los niveles de riesgo definitivos, junto con el equipo de Modelos.
 - Si al final publicamos la web en internet (es opcional).
