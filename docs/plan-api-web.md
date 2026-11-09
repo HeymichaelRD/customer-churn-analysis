@@ -64,21 +64,21 @@ flowchart LR
 | Ruta | Qué hace | Fase |
 |---|---|---|
 | `GET /health` | Dice si la API está encendida y qué modelo usa | ✅ 0 |
-| `POST /predict` | Devuelve la probabilidad de baja, el nivel de riesgo (`low`, `medium` o `high`) y la versión del modelo | 1 |
+| `POST /predict` | Devuelve la probabilidad de baja, el nivel de riesgo (`low`, `medium` o `high`) y la versión del modelo | ✅ 1 |
 | `GET /samples` y `GET /samples/random` | Devuelven clientes reales de ejemplo, con lo que pasó de verdad (`actual_churn`) | 2 |
 | `POST /recommendations` | Devuelve las acciones que más bajan el riesgo de un cliente | 2 |
 | `GET /insights` | Devuelve las cifras y los segmentos para la página de Hallazgos | 2 |
 | `GET /model-info` | Devuelve el algoritmo, la fecha de entrenamiento y las métricas del modelo | 3 |
 | `POST /predict/batch` | Predice todos los clientes de un CSV (hasta 5 MB) | 3 |
 
-Los detalles de `/health` y `/predict` (campos, respuestas y errores) están en el README, en [Contratos entre equipos](../README.md#-contratos-entre-equipos). Las demás rutas se documentan ahí cuando se construyan.
+Los detalles de `/health` y `/predict` (campos, respuestas y errores) están en el README, en [Contratos entre equipos](../README.md#-contratos-entre-equipos). Las demás rutas se documentan ahí cuando se construyan. Cómo funciona `/predict` por dentro está explicado en [api-fase1.md](api-fase1.md).
 
 **Archivos de la API** (en `src/api/`):
 
 | Archivo | Para qué sirve |
 |---|---|
-| `app.py` | Define las rutas. Solo recibe la petición, llama al archivo que hace el trabajo y responde. Ya existe, con `/health` |
-| `schema.py` | Revisa que lleguen bien los 19 campos del cliente. También aplica las reglas de coherencia: si no tiene teléfono, no puede tener líneas múltiples; si no tiene internet, no puede tener servicios de internet |
+| `app.py` | Define las rutas. Solo recibe la petición, llama al archivo que hace el trabajo y responde. Ya existe, con `/health` y `/predict` |
+| `schema.py` | Revisa que lleguen bien los 19 campos del cliente. También aplica las reglas de coherencia: si no tiene teléfono, no puede tener líneas múltiples; si no tiene internet, no puede tener servicios de internet; y debe tener al menos teléfono o internet |
 | `model_service.py` | Carga el modelo indicado en `MODEL_PATH` (archivo `.env`). Si no existe, usa el modelo de prueba. También define los niveles de riesgo |
 | `recommendations.py` | Guarda la lista de acciones de retención y calcula cuáles ayudan más |
 | `data_service.py` | Calcula las cifras de Hallazgos y elige los clientes de ejemplo. Lee `data/processed/`, o `data/raw/` mientras no exista |
@@ -98,7 +98,7 @@ Cada fase termina con un **Pull Request de `api-web` a `main`**, que revisa Mich
 | Fase | Qué incluye | Cuándo | Estado |
 |---|---|---|---|
 | **0. Preparación** | La base de la API (`/health`) y de las 5 páginas, los archivos compartidos y el contrato v1 | Días 1 y 2 | ✅ Hecha |
-| **1. Primera versión completa** | `schema.py`, `POST /predict` con el modelo de prueba y sus pruebas. `predict.html` con el formulario, el resultado, el ingreso en riesgo y los errores | Semana 1 | ⏳ |
+| **1. Primera versión completa** | `schema.py`, `POST /predict` con el modelo de prueba y sus pruebas. `predict.html` con el formulario, el resultado, el ingreso en riesgo y los errores | Semana 1 | 🔨 La API está hecha (PR #5). Falta `predict.html` |
 | **2. Lo que la hace destacar** | Clientes de ejemplo, recomendaciones y simulador, Hallazgos, Inicio y Sobre el proyecto | Semana 2 | ⏳ |
 | **3. Modelo real y lotes** | El modelo del equipo de Modelos, `/model-info`, `POST /predict/batch` y `batch.html` | Semana 3 | ⏳ |
 | **4. Pulido y demo** | Revisar la vista en celular, la accesibilidad y los textos. Completar el README y preparar el guion de la demo. Publicar en internet es opcional | Semana 4 | ⏳ |

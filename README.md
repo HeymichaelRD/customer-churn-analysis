@@ -358,7 +358,7 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 
 #### `POST /predict`: riesgo de abandono de un cliente
 
-**Petición:** los 19 campos del dataset, con los **mismos nombres y valores** (en inglés y con las mismas mayúsculas). `customerID` no se envía.
+**Petición:** los 19 campos del dataset, con los **mismos nombres y valores** (en inglés y con las mismas mayúsculas). `customerID` no se envía: si llega un campo que no está en esta tabla, la API responde `400`.
 
 | Campo | Tipo | Valores permitidos |
 |---|---|---|
@@ -376,8 +376,9 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 
 **Reglas de coherencia** (si no se cumplen, la API responde `400`):
 
-- Si `PhoneService` es `"No"`, `MultipleLines` debe ser `"No phone service"`.
-- Si `InternetService` es `"No"`, los 6 servicios de internet deben ser `"No internet service"`.
+- Si `PhoneService` es `"No"`, `MultipleLines` debe ser `"No phone service"`. Si es `"Yes"`, `MultipleLines` no puede ser `"No phone service"`.
+- Si `InternetService` es `"No"`, los 6 servicios de internet deben ser `"No internet service"`. Si tiene internet (`"DSL"` o `"Fiber optic"`), ninguno puede ser `"No internet service"`.
+- El cliente debe tener **al menos** teléfono o internet: `PhoneService` e `InternetService` no pueden ser `"No"` a la vez.
 
 Ejemplo (el primer cliente del dataset):
 
@@ -427,11 +428,14 @@ Ejemplo (el primer cliente del dataset):
 
 | Código | Cuándo | Respuesta |
 |---|---|---|
-| `400` | Falta un campo, el tipo o el valor no es válido, o se rompe una regla de coherencia | `{"error": "El campo Contract tiene un valor no permitido", "field": "Contract"}` |
+| `400` | Falta o sobra un campo, el tipo o el valor no es válido, o se rompe una regla de coherencia | `{"error": "El campo Contract tiene un valor no permitido", "field": "Contract"}` |
 | `404` | La ruta no existe | `{"error": "Esa ruta no existe en la API"}` |
+| `405` | La ruta existe, pero no con ese método (por ejemplo, `GET /predict`) | `{"error": "Esa ruta no acepta este método (GET/POST)"}` |
 | `500` | Falla la API o el modelo | `{"error": "Error interno de la API"}` |
 
-Los mensajes van en español porque la página se los muestra al usuario. `field` sirve para marcar en rojo el campo del formulario.
+Los mensajes van en español porque la página se los muestra al usuario. `field` sirve para marcar en rojo el campo del formulario. Es `null` cuando el problema no es de un campo, por ejemplo si lo que llega no es un JSON.
+
+El detalle de cómo valida la API (orden de las revisiones y casos especiales) está en [docs/api-fase1.md](docs/api-fase1.md).
 
 **Por confirmar con otros equipos:**
 
