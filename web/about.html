@@ -2,88 +2,232 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Sobre el proyecto · Customer Churn Analysis</title>
     <meta name="description" content="Cómo se hizo el proyecto, el modelo que usa y quiénes participaron." />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f5f73' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230071e3' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
     />
+    <!-- Tema claro u oscuro: va primero para que la página no parpadee -->
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/base.css" />
-    <script type="module" src="js/common.js"></script>
-    <!-- Estilos y código propios de esta página: créalos y enlázalos aquí.
     <link rel="stylesheet" href="css/about.css" />
+    <script type="module" src="js/common.js"></script>
+    <!-- El código de esta página va en js/about.js: créalo y quita este comentario.
     <script type="module" src="js/about.js"></script>
     -->
   </head>
   <body>
-    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <a class="skip" href="#main">Saltar al contenido</a>
 
-    <header class="site-header">
-      <div class="container header-inner">
+    <header class="nav">
+      <div class="wrap nav-inner">
         <a class="brand" href="index.html">
           <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
             <polyline points="3 7 9 13 13 9 21 17" />
             <polyline points="15 17 21 17 21 11" />
           </svg>
-          Customer Churn Analysis
+          <span>Customer Churn Analysis</span>
         </a>
-        <nav class="site-nav" aria-label="Principal">
-          <ul class="nav-list">
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="predict.html">Predecir</a></li>
-            <li><a href="batch.html">Por lotes</a></li>
-            <li><a href="insights.html">Hallazgos</a></li>
-            <li><a href="about.html" aria-current="page">Sobre el proyecto</a></li>
-          </ul>
+        <nav class="nav-links" aria-label="Principal">
+          <a href="index.html">Inicio</a>
+          <a href="predict.html">Predecir</a>
+          <a href="batch.html">Por lotes</a>
+          <a href="insights.html">Hallazgos</a>
+          <a href="about.html" aria-current="page">Sobre el proyecto</a>
         </nav>
-        <p class="api-status" id="api-status" data-state="checking" role="status">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span class="status-text">Conectando con la API…</span>
-        </p>
+        <div class="nav-tools">
+          <span class="status" id="api-status" data-state="checking" role="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-text">Conectando…</span>
+          </span>
+          <button class="icon-btn" id="theme-btn" type="button" aria-label="Cambiar a modo oscuro"></button>
+        </div>
       </div>
     </header>
 
-    <div class="demo-banner" id="demo-banner" hidden>
-      <p class="container">
-        <strong>Modo demostración:</strong> la API usa un modelo provisional mientras llega el modelo real del equipo
-        de Modelos. Los resultados son solo de ejemplo.
-      </p>
+    <div class="ribbon" id="demo-ribbon" hidden>
+      <div class="wrap ribbon-inner">
+        <p>
+          <strong>Modo demostración.</strong> El modelo es provisional y los resultados son de ejemplo, mientras llega
+          el modelo real del equipo de Modelos.
+        </p>
+        <button class="icon-btn" id="demo-ribbon-close" type="button" aria-label="Cerrar aviso">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-x" /></svg>
+        </button>
+      </div>
     </div>
 
-    <main id="main" class="container">
-      <section class="page-intro">
-        <p class="eyebrow">Sobre el proyecto</p>
-        <h1>De un archivo de datos a una aplicación web</h1>
+    <main id="main" class="page" tabindex="-1">
+      <div class="wrap page-head">
+        <p class="eyebrow eyebrow-accent">Sobre el proyecto</p>
+        <h1 class="title">De un archivo de datos a una aplicación web</h1>
         <p class="lead">
-          Cómo trabajamos los cinco equipos, qué modelo usa la aplicación y qué límites tiene.
-        </p>
-      </section>
-
-      <section class="card placeholder section" aria-labelledby="todo-title">
-        <h2 id="todo-title">🚧 En construcción</h2>
-        <p>Aquí irá <strong>(Fase 2)</strong>:</p>
-        <ul>
-          <li>El flujo del proyecto: datos crudos → limpieza → EDA → modelo → API → web y Power BI.</li>
-          <li>Los equipos y sus integrantes.</li>
-          <li>
-            El dataset y las limitaciones: son datos de ejemplo de IBM, y el modelo encuentra relaciones, no causas.
-          </li>
-        </ul>
-        <p>Y después <strong>(Fase 3)</strong>:</p>
-        <ul>
-          <li>El modelo: algoritmo, fecha de entrenamiento y métricas (<code>GET /model-info</code>).</li>
-        </ul>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="container">
-        <p>
-          Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026 ·
-          <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
+          Cinco equipos, un dataset y un modelo. Así se conecta todo, qué modelo usa la aplicación y qué límites tiene.
         </p>
       </div>
+
+      <div class="wrap">
+        <ol class="flow">
+          <li>
+            <span class="step-n">1</span>
+            <b>Datos crudos</b>
+            <span>7,043 clientes y 21 columnas</span>
+            <code>data/raw</code>
+          </li>
+          <li>
+            <span class="step-n">2</span>
+            <b>Limpieza</b>
+            <span>Tipos, vacíos y duplicados</span>
+            <code>src/cleaning</code>
+          </li>
+          <li>
+            <span class="step-n">3</span>
+            <b>EDA</b>
+            <span>Patrones y hallazgos</span>
+            <code>notebooks</code>
+          </li>
+          <li>
+            <span class="step-n">4</span>
+            <b>Modelo</b>
+            <span>Entrenar y evaluar</span>
+            <code>src/modeling</code>
+          </li>
+          <li>
+            <span class="step-n">5</span>
+            <b>API</b>
+            <span>Flask, responde en JSON</span>
+            <code>src/api</code>
+          </li>
+          <li class="is-here">
+            <span class="step-n">6</span>
+            <b>Web y Power BI</b>
+            <span>Estás aquí</span>
+            <code>web · dashboard</code>
+          </li>
+        </ol>
+
+        <div class="section-head spaced">
+          <p class="eyebrow eyebrow-accent">El modelo</p>
+          <h2 class="h2">Qué tan bien predice y en qué se fija.</h2>
+        </div>
+        <!-- Fase 3 (js/about.js): en el prototipo, dos <div class="panel">. -->
+        <div class="model-grid">
+          <div class="placeholder">
+            <span class="placeholder-tag">Fase 3</span>
+            <b>Métricas del modelo</b>
+            <p>
+              El algoritmo, con cuántos clientes se entrenó y se probó, y su exactitud, AUC, precisión y sensibilidad,
+              explicadas en palabras.
+            </p>
+            <p class="caption">Usa <code>GET /model-info</code>.</p>
+          </div>
+          <div class="placeholder">
+            <span class="placeholder-tag">Fase 3</span>
+            <b>Qué pesa más en el riesgo</b>
+            <p>Un gráfico con los datos del cliente que más suben o bajan el riesgo de que se vaya.</p>
+            <p class="caption">Usa <code>GET /model-info</code>.</p>
+          </div>
+        </div>
+
+        <div class="section-head spaced">
+          <p class="eyebrow eyebrow-accent">Equipos</p>
+          <h2 class="h2">Cada equipo, en su carpeta y en su rama.</h2>
+        </div>
+        <div class="teams">
+          <div class="team">
+            <b>Limpieza y EDA</b>
+            <code>src/cleaning · notebooks</code>
+            <p>Datos limpios y los hallazgos principales.</p>
+            <p class="people">Por completar</p>
+          </div>
+          <div class="team">
+            <b>Modelos de ML</b>
+            <code>src/modeling · models</code>
+            <p>El modelo entrenado y sus métricas.</p>
+            <p class="people">Por completar</p>
+          </div>
+          <div class="team">
+            <b>API y Web</b>
+            <code>src/api · web</code>
+            <p>La API en Flask y esta página.</p>
+            <p class="people">Michael y Christopher</p>
+          </div>
+          <div class="team">
+            <b>Dashboard</b>
+            <code>dashboard</code>
+            <p>El reporte en Power BI.</p>
+            <p class="people">Por completar</p>
+          </div>
+          <div class="team">
+            <b>RPA</b>
+            <code>src/rpa</code>
+            <p>Un bot de automatización en Python.</p>
+            <p class="people">Por completar</p>
+          </div>
+        </div>
+
+        <div class="section-head spaced">
+          <p class="eyebrow eyebrow-accent">Límites</p>
+          <h2 class="h2">Lo que el modelo no puede decir.</h2>
+        </div>
+        <ul class="limits">
+          <li>
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-db" /></svg>
+            <b>Datos de ejemplo</b>
+            <p>
+              Telco Customer Churn es un dataset de IBM sobre una empresa ficticia. Sirve para aprender, no describe un
+              mercado real.
+            </p>
+          </li>
+          <li>
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-link" /></svg>
+            <b>Relaciones, no causas</b>
+            <p>El modelo encuentra patrones. Que un factor pese mucho no prueba que cause el abandono.</p>
+          </li>
+          <li>
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-sliders" /></svg>
+            <b>Umbrales provisionales</b>
+            <p>Bajo, medio y alto se cortan en 30% y 60%. Se ajustan junto con el equipo de Modelos.</p>
+          </li>
+          <li>
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-beaker" /></svg>
+            <b>Modelo provisional</b>
+            <p>Mientras llega el modelo del equipo de Modelos, la API usa un modelo de prueba.</p>
+          </li>
+        </ul>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <span>Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026</span>
+        <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
+      </div>
     </footer>
+
+    <nav class="tabbar" aria-label="Principal en el celular">
+      <a href="index.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-home" /></svg>
+        <span>Inicio</span>
+      </a>
+      <a href="predict.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-gauge" /></svg>
+        <span>Predecir</span>
+      </a>
+      <a href="batch.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-list" /></svg>
+        <span>Por lotes</span>
+      </a>
+      <a href="insights.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chart" /></svg>
+        <span>Hallazgos</span>
+      </a>
+      <a href="about.html" aria-current="page">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-info" /></svg>
+        <span>Proyecto</span>
+      </a>
+    </nav>
   </body>
 </html>

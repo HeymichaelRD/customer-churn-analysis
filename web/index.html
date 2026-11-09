@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Inicio · Customer Churn Analysis</title>
     <meta
       name="description"
@@ -10,82 +10,264 @@
     />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f5f73' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230071e3' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 7 9 13 13 9 21 17'/%3E%3Cpolyline points='15 17 21 17 21 11'/%3E%3C/svg%3E"
     />
+    <!-- Tema claro u oscuro: va primero para que la página no parpadee -->
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/base.css" />
-    <script type="module" src="js/common.js"></script>
-    <!-- Estilos y código propios de esta página: créalos y enlázalos aquí.
     <link rel="stylesheet" href="css/index.css" />
+    <script type="module" src="js/common.js"></script>
+    <!-- El código de esta página va en js/index.js: créalo y quita este comentario.
     <script type="module" src="js/index.js"></script>
     -->
   </head>
   <body>
-    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <a class="skip" href="#main">Saltar al contenido</a>
 
-    <header class="site-header">
-      <div class="container header-inner">
+    <header class="nav">
+      <div class="wrap nav-inner">
         <a class="brand" href="index.html">
           <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
             <polyline points="3 7 9 13 13 9 21 17" />
             <polyline points="15 17 21 17 21 11" />
           </svg>
-          Customer Churn Analysis
+          <span>Customer Churn Analysis</span>
         </a>
-        <nav class="site-nav" aria-label="Principal">
-          <ul class="nav-list">
-            <li><a href="index.html" aria-current="page">Inicio</a></li>
-            <li><a href="predict.html">Predecir</a></li>
-            <li><a href="batch.html">Por lotes</a></li>
-            <li><a href="insights.html">Hallazgos</a></li>
-            <li><a href="about.html">Sobre el proyecto</a></li>
-          </ul>
+        <nav class="nav-links" aria-label="Principal">
+          <a href="index.html" aria-current="page">Inicio</a>
+          <a href="predict.html">Predecir</a>
+          <a href="batch.html">Por lotes</a>
+          <a href="insights.html">Hallazgos</a>
+          <a href="about.html">Sobre el proyecto</a>
         </nav>
-        <p class="api-status" id="api-status" data-state="checking" role="status">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span class="status-text">Conectando con la API…</span>
-        </p>
+        <div class="nav-tools">
+          <span class="status" id="api-status" data-state="checking" role="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-text">Conectando…</span>
+          </span>
+          <button class="icon-btn" id="theme-btn" type="button" aria-label="Cambiar a modo oscuro"></button>
+        </div>
       </div>
     </header>
 
-    <div class="demo-banner" id="demo-banner" hidden>
-      <p class="container">
-        <strong>Modo demostración:</strong> la API usa un modelo provisional mientras llega el modelo real del equipo
-        de Modelos. Los resultados son solo de ejemplo.
-      </p>
+    <div class="ribbon" id="demo-ribbon" hidden>
+      <div class="wrap ribbon-inner">
+        <p>
+          <strong>Modo demostración.</strong> El modelo es provisional y los resultados son de ejemplo, mientras llega
+          el modelo real del equipo de Modelos.
+        </p>
+        <button class="icon-btn" id="demo-ribbon-close" type="button" aria-label="Cerrar aviso">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-x" /></svg>
+        </button>
+      </div>
     </div>
 
-    <main id="main" class="container">
-      <section class="page-intro">
-        <p class="eyebrow">Proyecto final · Talendig</p>
-        <h1>¿Qué clientes están a punto de irse?</h1>
+    <main id="main" class="page" tabindex="-1">
+      <div class="wrap hero">
+        <p class="eyebrow">Proyecto final · Técnico en Ciencia de Datos · Talendig</p>
+        <h1 class="display">¿Qué clientes están a punto de irse?</h1>
         <p class="lead">
-          Un modelo de Machine Learning, entrenado con los datos de 7,043 clientes de una empresa de
-          telecomunicaciones, estima el riesgo de que cada cliente abandone el servicio y sugiere cómo retenerlo.
+          Un modelo de Machine Learning, entrenado con los datos de 7,043 clientes de una empresa de telecomunicaciones,
+          estima el riesgo de que cada uno se vaya y sugiere cómo retenerlo.
         </p>
-        <div class="actions">
+        <div class="cta-row">
           <a class="btn btn-primary" href="predict.html">Predecir un cliente</a>
-          <a class="btn btn-secondary" href="batch.html">Analizar una lista de clientes</a>
+          <a class="link-more" href="batch.html">
+            Analizar una lista de clientes
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+          </a>
         </div>
-      </section>
+      </div>
 
-      <section class="card placeholder section" aria-labelledby="todo-title">
-        <h2 id="todo-title">🚧 En construcción</h2>
-        <p>Aquí irá <strong>(Fase 2)</strong>:</p>
-        <ul>
-          <li>El problema en números: tasa de abandono e ingreso mensual perdido (<code>GET /insights</code>).</li>
-          <li>Cómo funciona, en 3 pasos.</li>
-          <li>Accesos a Predecir, Por lotes y Hallazgos.</li>
-        </ul>
-      </section>
+      <div class="wrap hero-stage">
+        <!-- Fase 2 (js/index.js): en el prototipo es <article class="showcase">. -->
+        <div class="placeholder">
+          <span class="placeholder-tag">Fase 2</span>
+          <b>Tarjeta con un cliente de ejemplo</b>
+          <p>
+            Un cliente real del dataset con su anillo de probabilidad, el ingreso en riesgo y la mejor acción para
+            retenerlo. Cambia de cliente cada 5 segundos.
+          </p>
+          <p class="caption">
+            Usa <code>GET /samples</code>, <code>POST /predict</code> y <code>POST /recommendations</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="wrap section">
+        <div class="section-head">
+          <p class="eyebrow eyebrow-accent">El problema</p>
+          <h2 class="h2">Uno de cada cuatro clientes se fue en el último mes.</h2>
+        </div>
+        <!-- Cifras del dataset original. En la Fase 2, js/index.js las toma de GET /insights. -->
+        <div class="stats" id="stats">
+          <div class="stat">
+            <span class="stat-value" data-count="rate">26.5%</span>
+            <p>de los clientes <b>se dio de baja</b> en el último mes.</p>
+          </div>
+          <div class="stat">
+            <span class="stat-value" data-count="lost">US$139,131</span>
+            <p>al mes se fueron con ellos: <b id="lost-share">el 30.5% de los ingresos</b>.</p>
+          </div>
+          <div class="stat">
+            <span class="stat-value is-alert" data-count="segment">70.2%</span>
+            <p>se va en el grupo más riesgoso: <b>mes a mes, fibra óptica y un año o menos</b> como cliente.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap section">
+        <div class="section-head">
+          <p class="eyebrow eyebrow-accent">Cómo funciona</p>
+          <h2 class="h2">Del dato a la decisión, en tres pasos.</h2>
+        </div>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-n">1</span>
+            <h3 class="h3">Describe al cliente</h3>
+            <p>Contrato, servicios, antigüedad y cargos. O carga un cliente real del dataset con un clic.</p>
+          </li>
+          <li class="step">
+            <span class="step-n">2</span>
+            <h3 class="h3">El modelo estima el riesgo</h3>
+            <p>Una probabilidad de 0 a 100% y un nivel: bajo, medio o alto.</p>
+          </li>
+          <li class="step">
+            <span class="step-n">3</span>
+            <h3 class="h3">Actúa a tiempo</h3>
+            <p>Cuánto ingreso está en juego y qué acciones bajan más el riesgo.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="wrap section">
+        <div class="section-head">
+          <p class="eyebrow eyebrow-accent">Explora</p>
+          <h2 class="h2">Todo el proyecto, en cuatro páginas.</h2>
+        </div>
+        <div class="bento">
+          <a class="tile" href="predict.html">
+            <div class="tile-copy">
+              <h3 class="h3">Un cliente, en segundos.</h3>
+              <p>Cambia un dato y el riesgo se recalcula al instante. Funciona también como simulador.</p>
+              <span class="link-more">
+                Predecir
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+              </span>
+            </div>
+            <!-- Fase 2 (js/index.js): <div class="tile-art center"> con <div class="ring-box" style="--ring: 150px">. -->
+            <div class="tile-art">
+              <div class="placeholder">
+                <span class="placeholder-tag">Fase 2</span>
+                <span>Anillo con la predicción de un cliente de ejemplo</span>
+              </div>
+            </div>
+          </a>
+          <a class="tile" href="batch.html">
+            <div class="tile-copy">
+              <h3 class="h3">¿A quién llamar esta semana?</h3>
+              <p>Sube una lista y obtén a tus clientes ordenados por riesgo, con el dinero en juego.</p>
+              <span class="link-more">
+                Por lotes
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+              </span>
+            </div>
+            <!-- Fase 3 (js/index.js): en el prototipo es <div class="art-list">. -->
+            <div class="tile-art">
+              <div class="placeholder">
+                <span class="placeholder-tag">Fase 3</span>
+                <span>Los 3 clientes con más riesgo del dataset</span>
+              </div>
+            </div>
+          </a>
+          <a class="tile" href="insights.html">
+            <div class="tile-copy">
+              <h3 class="h3">Qué tienen en común los que se van.</h3>
+              <p>Gráficos interactivos del análisis exploratorio, con el hallazgo explicado en una frase.</p>
+              <span class="link-more">
+                Hallazgos
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+              </span>
+            </div>
+            <!-- Tasa de abandono por contrato, del dataset original. El ancho de cada barra es la tasa ÷ 50%.
+                 En la Fase 2, js/index.js la toma de GET /insights. -->
+            <div class="tile-art">
+              <div class="art-bars">
+                <div class="art-bar">
+                  <span>Mes a mes</span>
+                  <span><i style="width: 85.4%"></i></span>
+                  <b class="num">42.7%</b>
+                </div>
+                <div class="art-bar">
+                  <span>Un año</span>
+                  <span><i style="width: 22.5%"></i></span>
+                  <b class="num">11.3%</b>
+                </div>
+                <div class="art-bar">
+                  <span>Dos años</span>
+                  <span><i style="width: 5.7%"></i></span>
+                  <b class="num">2.8%</b>
+                </div>
+              </div>
+            </div>
+          </a>
+          <a class="tile" href="about.html">
+            <div class="tile-copy">
+              <h3 class="h3">Cinco equipos, un proyecto.</h3>
+              <p>Cómo se hizo, qué modelo usa la aplicación y qué límites tiene.</p>
+              <span class="link-more">
+                Sobre el proyecto
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+              </span>
+            </div>
+            <div class="tile-art">
+              <div class="art-flow">
+                <span>Datos</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+                <span>Limpieza</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+                <span>EDA</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+                <span>Modelo</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+                <span>API</span>
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chevron" /></svg>
+                <span>Web</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
     </main>
 
-    <footer class="site-footer">
-      <div class="container">
-        <p>
-          Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026 ·
-          <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
-        </p>
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <span>Proyecto final · Técnico en Ciencia de Datos · Talendig · 2026</span>
+        <a href="https://github.com/HeymichaelRD/customer-churn-analysis">Ver el código en GitHub</a>
       </div>
     </footer>
+
+    <nav class="tabbar" aria-label="Principal en el celular">
+      <a href="index.html" aria-current="page">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-home" /></svg>
+        <span>Inicio</span>
+      </a>
+      <a href="predict.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-gauge" /></svg>
+        <span>Predecir</span>
+      </a>
+      <a href="batch.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-list" /></svg>
+        <span>Por lotes</span>
+      </a>
+      <a href="insights.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-chart" /></svg>
+        <span>Hallazgos</span>
+      </a>
+      <a href="about.html">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="img/icons.svg#i-info" /></svg>
+        <span>Proyecto</span>
+      </a>
+    </nav>
   </body>
 </html>

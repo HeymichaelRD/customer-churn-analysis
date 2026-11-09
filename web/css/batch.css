@@ -1,0 +1,362 @@
+/* =====================================================================
+   Estilos de la página Por lotes (batch.html).
+   Salen del prototipo del diseño. Los estilos que comparten todas las
+   páginas (colores, botones, controles...) están en css/base.css.
+   ===================================================================== */
+
+/* --- Zona para soltar el archivo CSV ------------------------------------- */
+.drop {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 24px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1.5px dashed var(--fill-2);
+  transition:
+    border-color 0.2s var(--ease),
+    background-color 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+
+.drop.is-over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: scale(1.005);
+}
+
+.drop-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.drop-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.drop-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.drop-copy b {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.drop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .drop {
+    grid-template-columns: auto 1fr;
+  }
+
+  .drop-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+/* --- Barra de progreso --------------------------------------------------- */
+.progress {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.progress-track {
+  height: 6px;
+  border-radius: 6px;
+  background: var(--fill);
+  overflow: hidden;
+}
+
+.progress-track i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  transition: width 0.15s linear;
+}
+
+/* --- Encabezado de los resultados ---------------------------------------- */
+.results-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 44px 0 20px;
+}
+
+.results-head .h2 {
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+}
+
+/* Origen de los datos y botón "Descargar CSV", a la derecha del título */
+.results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--fill);
+  font-size: 13px;
+  color: var(--fg-2);
+  max-width: 100%;
+}
+
+.source-pill b {
+  color: var(--fg);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Cifras del resumen -------------------------------------------------- */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- Barra de clientes por nivel de riesgo ------------------------------- */
+.mix {
+  margin-top: 14px;
+  padding: 20px 22px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: 14px;
+}
+
+.mix-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mix-head b {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.mix-bar {
+  display: flex;
+  gap: 2px;
+  height: 28px;
+}
+
+.mix-bar span {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  min-width: 0;
+  border-radius: 4px;
+  overflow: visible;
+  background: var(--risk);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: flex-grow 0.6s var(--ease);
+  cursor: default;
+}
+
+.mix-bar span[data-risk="medium"] {
+  color: #1d1d1f;
+}
+
+.mix-bar span.no-label {
+  color: transparent;
+}
+
+/* --- Filtro y buscador --------------------------------------------------- */
+.table-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 28px 0 14px;
+}
+
+.table-tools .seg {
+  flex: 0 1 440px;
+}
+
+/* Espacio para el filtro por nivel de riesgo (makeSeg de js/ui.js) */
+.filter-slot {
+  flex: 0 1 440px;
+  min-width: 0;
+}
+
+.search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 1 260px;
+}
+
+.search svg {
+  position: absolute;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  color: var(--fg-3);
+  pointer-events: none;
+}
+
+.search .input {
+  width: 100%;
+  padding-left: 34px;
+}
+
+/* --- Tabla ordenada por riesgo (cada fila abre al cliente en Predecir) --- */
+/* Uso: <table class="rank-table"> dentro de <div class="table-card"> */
+.rank-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.rank-table tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+td.rank {
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+  width: 1%;
+}
+
+.id-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  color: var(--accent-text);
+  cursor: pointer;
+  letter-spacing: 0;
+}
+
+.id-btn:hover {
+  text-decoration: underline;
+}
+
+.prob-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prob-cell .bar-mini {
+  width: 64px;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--fill);
+  overflow: hidden;
+}
+
+.prob-cell .bar-mini i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--risk);
+}
+
+.prob-cell b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+  text-align: right;
+}
+
+.real {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg-2);
+}
+
+.real svg {
+  width: 15px;
+  height: 15px;
+}
+
+.real.ok svg {
+  color: var(--risk-low);
+}
+
+.real.miss svg {
+  color: var(--risk-medium);
+}
+
+.table-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--hairline);
+  font-size: 13.5px;
+  color: var(--fg-2);
+}
+
+/* --- Filas con errores --------------------------------------------------- */
+.errors {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: var(--r-lg);
+  background: var(--risk-high-soft);
+  color: var(--fg);
+  font-size: 14px;
+}
+
+.errors summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--risk-high-text);
+}
+
+.errors ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+  color: var(--fg-2);
+}
