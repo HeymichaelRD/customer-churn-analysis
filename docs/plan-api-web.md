@@ -114,7 +114,7 @@ Cada persona trabaja **solo en sus archivos**. Así dos personas no cambian el m
 | Persona | Responsable de | Archivos |
 |---|---|---|
 | Michael (mantenedor del repo) | Archivos compartidos, contratos con los otros equipos, conectar el modelo real, predicción por lotes, README y revisión de los Pull Requests | `web/css/base.css`, `web/js/config.js`, `web/js/api.js`, `web/js/labels.js`, `web/js/common.js`, `src/api/batch.py` y `web/batch.html` |
-| Persona API: *(por asignar)* | La API y sus pruebas | `src/api/` (menos `batch.py`) y `tests/` |
+| Persona API: Christopher ([chpujols-DS07](https://github.com/chpujols-DS07)) | La API y sus pruebas | `src/api/` (menos `batch.py`) y `tests/` |
 | Persona Web 1: *(por asignar)* | Página Predecir | `web/predict.html`, `web/css/predict.css` y `web/js/predict.js` |
 | Persona Web 2: *(por asignar)* | Páginas Inicio, Hallazgos y Sobre el proyecto | `web/index.html`, `web/insights.html`, `web/about.html` y sus archivos `.css` y `.js` |
 | 4.ª persona, si la hay | Página Por lotes, en lugar de Michael | `web/batch.html`, `web/css/batch.css` y `web/js/batch.js` |
