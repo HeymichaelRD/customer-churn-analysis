@@ -42,11 +42,12 @@ En este proyecto vamos a:
 
 1. **Limpiar** el dataset de clientes.
 2. **Explorar** los datos (EDA) para entender qué factores se relacionan con el abandono.
-3. **Entrenar modelos de Machine Learning** que predigan si un cliente se va a ir.
-4. **Exponer el modelo en una API** hecha con Flask.
-5. **Construir una página web** donde se pueda consultar la predicción.
-6. **Crear un dashboard en Power BI** con los hallazgos.
-7. **Automatizar tareas con RPA** en Python.
+3. **Segmentar a los clientes con K-Means** (aprendizaje no supervisado): el modelo agrupa a los clientes que se parecen, sin saber quién se fue. Después vemos cuánto abandono hay en cada grupo.
+4. **Entrenar modelos de Machine Learning** (aprendizaje supervisado) que predigan si un cliente se va a ir.
+5. **Exponer los modelos en una API** hecha con Flask.
+6. **Construir una página web** donde se pueda consultar la predicción y el segmento de cada cliente.
+7. **Crear un dashboard en Power BI** con los hallazgos y los segmentos.
+8. **Automatizar tareas con RPA** en Python.
 
 ### 🗂️ Dataset
 
@@ -74,19 +75,26 @@ flowchart LR
     RAW[("data/raw<br/>Dataset original")] --> CLEAN["🧹 Limpieza<br/>src/cleaning"]
     CLEAN --> PROC[("data/processed<br/>Datos limpios")]
     PROC --> EDA["🔍 EDA<br/>notebooks"]
-    PROC --> ML["🤖 Modelos ML<br/>src/modeling"]
-    ML --> MODEL[("models/<br/>Modelo entrenado")]
+    PROC --> SEG
+    subgraph TEAM_ML["Equipo Modelos de ML · src/modeling"]
+        SEG["🧩 1. Segmentación<br/>K-Means"] --> ML["🤖 2. Predicción<br/>de churn"]
+    end
+    SEG --> MODEL[("models/<br/>Modelos entrenados")]
+    ML --> MODEL
     MODEL --> API
     subgraph TEAM_API_WEB["Equipo API y Web"]
         API["🔌 API Flask<br/>src/api"] --> WEB["🌐 Página web<br/>web"]
     end
     PROC --> OUT[("data/output<br/>Datos para el dashboard")]
+    SEG --> OUT
     ML --> OUT
     OUT --> BI["📊 Power BI<br/>dashboard"]
     RPA["⚙️ RPA<br/>src/rpa"]
 ```
 
 > [!NOTE]
+> **Primero se segmenta y después se predice.** K-Means es aprendizaje **no supervisado**: agrupa a los clientes que se parecen sin mirar la columna `Churn`. Esos grupos (segmentos) sirven para entender a los clientes y decidir qué hacer con cada uno. Después, el modelo de churn, que es aprendizaje **supervisado**, aprende de la columna `Churn` a predecir quién se va.
+>
 > La tarea que va a automatizar el equipo de RPA está por definir. Cuando se decida, se conecta en este diagrama.
 
 ---
@@ -98,7 +106,7 @@ Cada equipo trabaja **en su carpeta** y **en su rama**. Así nadie pisa el traba
 | Equipo | Carpeta | Rama | Entrega |
 |---|---|---|---|
 | 🧹 Limpieza y 🔍 EDA | `src/cleaning/` y `notebooks/` | `cleaning-eda` | Datos limpios en `data/processed/` y notebooks con el análisis y los hallazgos |
-| 🤖 Modelos de ML | `src/modeling/` | `modeling` | Modelo entrenado en `models/` |
+| 🤖 Modelos de ML | `src/modeling/` | `modeling` | Dos modelos en `models/`: primero, la segmentación de clientes con K-Means; después, el modelo que predice el churn |
 | 🔌 API y 🌐 Web | `src/api/` y `web/` | `api-web` | API en Flask que devuelve predicciones y página en HTML/CSS/JS que la consume |
 | 📊 Dashboard | `dashboard/` | `dashboard` | Archivo `.pbix` de Power BI |
 | ⚙️ RPA | `src/rpa/` | `rpa` | Bot de automatización en Python |
@@ -122,10 +130,10 @@ customer-churn-analysis/
 ├── notebooks/          ← EDA y experimentos (cada persona los suyos)
 ├── src/
 │   ├── cleaning/       ← scripts de limpieza
-│   ├── modeling/       ← código para entrenar y evaluar modelos
+│   ├── modeling/       ← código de la segmentación (K-Means) y del modelo de churn
 │   ├── api/            ← API en Flask
 │   └── rpa/            ← automatización en Python
-├── models/             ← modelos ya entrenados (.pkl / .joblib)
+├── models/             ← modelos ya entrenados: segmentación y churn (.pkl / .joblib)
 ├── dashboard/          ← archivo .pbix de Power BI
 ├── web/                ← página web (HTML, CSS, JS)
 ├── assets/             ← imágenes y documentos del proyecto
@@ -134,7 +142,7 @@ customer-churn-analysis/
 ```
 
 > [!TIP]
-> `src/modeling/` tiene el **código** que entrena el modelo. `models/` guarda el **modelo ya entrenado**. No los confundas.
+> `src/modeling/` tiene el **código** que entrena los modelos. `models/` guarda los **modelos ya entrenados**. No los confundas.
 
 ---
 
@@ -262,7 +270,7 @@ pytest
 4. 📓 **Cada persona tiene sus propios notebooks.** Nunca edites el notebook de otra persona.
 5. 💾 **Haz commits pequeños y seguido**, con un mensaje que explique qué hiciste.
 6. 🔐 **Nunca subas contraseñas.** Van en tu `.env`, que no se sube.
-7. 📦 **Solo el responsable sube** los datos oficiales (`data/processed/`, `data/output/`), el modelo (`models/`) y el `.pbix`. Para tus pruebas usa una carpeta `tmp/`, que Git ignora.
+7. 📦 **Solo el responsable sube** los datos oficiales (`data/processed/`, `data/output/`), los modelos (`models/`) y el `.pbix`. Para tus pruebas usa una carpeta `tmp/`, que Git ignora.
 
 ### Paso a paso con GitHub Desktop
 
@@ -339,9 +347,50 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 | Entrega | De → Para | Archivo / endpoint | Estado |
 |---|---|---|---|
 | Datos limpios | Limpieza y EDA → Modelos | `data/processed/________.csv` | ⏳ Por definir |
-| Modelo entrenado | Modelos → API | `models/________.pkl` | ⏳ Por definir |
-| Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/________.csv` | ⏳ Por definir |
+| Segmentación de clientes | Modelos → API, Power BI | `models/________.pkl` y `models/segments_info.json` | 📝 Borrador (abajo) |
+| Modelo de churn | Modelos → API | `models/________.pkl` | ⏳ Por definir |
+| Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/________.csv`, con el segmento de cada cliente | ⏳ Por definir |
 | Predicción | API → Web | `GET /health` y `POST /predict` | 📝 Borrador v1 (abajo) |
+
+<details>
+<summary><b>🧩 Segmentación de clientes (borrador)</b></summary>
+
+El profesor pidió que, **antes** del modelo de churn, el equipo de Modelos segmente a los clientes con **K-Means**. Los segmentos sirven para describir a los clientes y decidir qué hacer con cada grupo: se muestran en el dashboard y en la página web, y ayudan a elegir las recomendaciones de retención.
+
+| Qué | Detalle |
+|---|---|
+| **Modelo** | Un `Pipeline` de scikit-learn (escalado + one-hot + `KMeans`) guardado con `joblib` en `models/`. Recibe las columnas originales del dataset y, con `predict`, devuelve el número de segmento de cada cliente |
+| **Columnas** | Las elige el equipo de Modelos. **Nunca** `Churn`, porque es aprendizaje no supervisado, ni `customerID` |
+| **Número de segmentos (k)** | Se elige con el método del codo y con la silueta. El notebook muestra los dos gráficos |
+| **Que se pueda repetir** | `random_state` fijo (por ejemplo, `42`), para que al volver a entrenar salgan los mismos grupos |
+| **Nombres** | En `models/segments_info.json`, cada segmento con un nombre corto, una descripción, cuántos clientes tiene y su tasa de abandono. Los números (0, 1, 2…) no dicen nada por sí solos y pueden cambiar si se vuelve a entrenar |
+| **Para Power BI** | El segmento de cada cliente (`customerID` y `segment`) en el CSV de `data/output/` |
+
+Ejemplo de `models/segments_info.json` (los valores son ilustrativos):
+
+```json
+{
+  "algorithm": "KMeans",
+  "k": 4,
+  "columns": ["tenure", "MonthlyCharges"],
+  "segments": [
+    {
+      "id": 0,
+      "name": "Nuevos con cargo alto",
+      "description": "Poco tiempo en la empresa y un cargo mensual alto",
+      "customers": 2204,
+      "churn_rate": 0.49
+    }
+  ]
+}
+```
+
+> [!IMPORTANT]
+> Escalen los datos antes de K-Means (`StandardScaler`). K-Means agrupa por distancias: sin escalar, una columna con números grandes, como `TotalCharges`, decide sola los grupos.
+
+**Por confirmar con el profesor:** si el segmento también entra como **columna del modelo de churn**. Si entra, el `Pipeline` del modelo de churn calcula el segmento por dentro, con el K-Means entrenado **solo con los datos de entrenamiento**. Así la API sigue recibiendo los mismos 19 campos.
+
+</details>
 
 <details>
 <summary><b>📝 Contrato API → Web (borrador v1)</b></summary>
@@ -442,8 +491,9 @@ El detalle de cómo valida la API (orden de las revisiones y casos especiales) e
 1. **Modelos:** qué columnas usa el modelo. Si son menos de 19, se recorta este contrato.
 2. **Limpieza y EDA:** cómo tratan `TotalCharges` vacío (los 11 clientes con `tenure` 0).
 3. **Modelos:** a partir de qué probabilidad `churn` es `true` (por defecto, `0.5`).
+4. **Modelos:** cuando llegue el modelo de segmentación, `POST /predict` también devolverá el segmento del cliente (`segment`). Será la versión 2 de este contrato.
 
-Las demás rutas de la API (recomendaciones, clientes de ejemplo, hallazgos, información del modelo y predicción por lotes) se documentan aquí cuando se construyan.
+Las demás rutas de la API (recomendaciones, clientes de ejemplo, hallazgos, segmentos, información de los modelos y predicción por lotes) se documentan aquí cuando se construyan.
 
 </details>
 

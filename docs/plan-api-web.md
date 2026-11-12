@@ -8,8 +8,11 @@ Qué vamos a construir, en qué orden y quién hace cada parte. Si algo cambia, 
 
 Vamos a construir dos cosas:
 
-- Una **API en Flask** que recibe los datos de un cliente y devuelve la probabilidad de que se dé de baja.
+- Una **API en Flask** que recibe los datos de un cliente y devuelve la probabilidad de que se dé de baja y el segmento al que pertenece.
 - Una **página web** que usa esa API.
+
+> [!NOTE]
+> **Cambio del 12 de noviembre de 2026.** El profesor pidió que, antes del modelo de churn, el equipo de Modelos segmente a los clientes con **K-Means** (aprendizaje no supervisado). Por eso la API va a usar dos modelos y la web va a mostrar los segmentos. Lo que entrega Modelos está en el README, en [Contratos entre equipos](../README.md#-contratos-entre-equipos).
 
 La web no se queda en "formulario → número". Convierte cada predicción en **decisiones**: cuánto dinero está en riesgo y qué hacer para retener al cliente. Los datos del proyecto muestran por qué importa:
 
@@ -30,12 +33,12 @@ La web no se queda en "formulario → número". Convierte cada predicción en **
 flowchart LR
     U["👤 Usuario<br/>navegador"] --> WEB["🌐 Página web<br/>web/"]
     WEB -- "pide datos (JSON)" --> API["🔌 API Flask<br/>src/api/"]
-    API --> MODEL[("🤖 Modelo<br/>models/")]
+    API --> MODEL[("🤖 Modelos<br/>segmentación y churn<br/>models/")]
     API --> DATA[("🗂️ Datos<br/>data/")]
 ```
 
-- La web nunca lee el modelo ni los datos directamente: todo pasa por la API.
-- Mientras no llegue el modelo real del equipo de Modelos, la API usa un **modelo de prueba** y la web muestra el aviso **"Modo demostración"**. Así nadie se queda esperando.
+- La web nunca lee los modelos ni los datos directamente: todo pasa por la API.
+- Mientras no lleguen los modelos reales del equipo de Modelos, la API usa **modelos de prueba** y la web muestra el aviso **"Modo demostración"**. Así nadie se queda esperando. Hoy existe el de churn, una regresión logística. El de segmentación, un K-Means de prueba, se agrega en la fase 3.
 
 ---
 
@@ -44,10 +47,10 @@ flowchart LR
 | Página | Archivo | Qué hace | Fase |
 |---|---|---|---|
 | Inicio | `index.html` | Muestra el problema en números, explica cómo funciona en 3 pasos y lleva a las demás páginas | 2 |
-| Predecir | `predict.html` | Tiene el formulario del cliente y muestra el resultado: probabilidad, nivel de riesgo e ingreso en riesgo. Incluye clientes de ejemplo, recomendaciones y un simulador | 1 y 2 |
-| Por lotes | `batch.html` | Recibe un CSV con muchos clientes. Muestra un resumen y una tabla ordenada por riesgo, y permite descargar los resultados | 3 |
-| Hallazgos | `insights.html` | Muestra las cifras clave y gráficos interactivos del EDA | 2 |
-| Sobre el proyecto | `about.html` | Explica cómo se hizo, quiénes participaron, qué modelo usa y sus límites | 2 y 3 |
+| Predecir | `predict.html` | Tiene el formulario del cliente y muestra el resultado: probabilidad, nivel de riesgo, ingreso en riesgo y segmento. Incluye clientes de ejemplo, recomendaciones y un simulador | 1, 2 y 3 |
+| Por lotes | `batch.html` | Recibe un CSV con muchos clientes. Muestra un resumen y una tabla ordenada por riesgo, con el segmento de cada cliente, y permite descargar los resultados | 3 |
+| Hallazgos | `insights.html` | Muestra las cifras clave, gráficos interactivos del EDA y los segmentos de clientes que encontró K-Means | 2 y 3 |
+| Sobre el proyecto | `about.html` | Explica cómo se hizo, quiénes participaron, qué modelos usa y sus límites | 2 y 3 |
 
 ### ✨ Lo que la hace destacar
 
@@ -55,6 +58,7 @@ flowchart LR
 - **Recomendaciones de retención.** La API prueba acciones como ofrecer un contrato de un año, pasar el pago a automático o activar el soporte técnico. Luego muestra las 3 que más bajan el riesgo, por ejemplo: "Ofrecer un contrato de un año: de 78% a 46%". Se acompaña de un **simulador**: cambias un dato del cliente y ves cómo cambia su riesgo.
 - **Clientes de ejemplo.** Unos botones cargan clientes reales del dataset: de alto riesgo, medio, leal o uno al azar. La web muestra si el modelo **acertó**, comparando con lo que pasó de verdad.
 - **Hallazgos.** Gráficos interactivos hechos con HTML y CSS, sin librerías, y un selector para cambiar el criterio: contrato, antigüedad, internet, forma de pago… Cada gráfico lleva su hallazgo explicado en una frase.
+- **Segmentos de clientes.** Los grupos que encontró K-Means, cada uno con su nombre, cuántos clientes tiene y cuánto abandono. En Predecir, el resultado dice a qué segmento pertenece el cliente. En Por lotes, cada fila lleva su segmento.
 - **Por lotes.** Responde a la pregunta "¿a quién hay que llamar esta semana?", incluso con el dataset completo de 7,043 clientes.
 
 ### 🎨 Diseño
@@ -72,11 +76,12 @@ El diseño sale del prototipo que preparó Michael: estilo Apple, con modo claro
 | Ruta | Qué hace | Fase |
 |---|---|---|
 | `GET /health` | Dice si la API está encendida y qué modelo usa | ✅ 0 |
-| `POST /predict` | Devuelve la probabilidad de baja, el nivel de riesgo (`low`, `medium` o `high`) y la versión del modelo | ✅ 1 |
+| `POST /predict` | Devuelve la probabilidad de baja, el nivel de riesgo (`low`, `medium` o `high`) y la versión del modelo. En la fase 3 agrega el segmento del cliente (`segment`) | ✅ 1 |
 | `GET /samples` y `GET /samples/random` | Devuelven clientes reales de ejemplo, con lo que pasó de verdad (`actual_churn`) | 2 |
 | `POST /recommendations` | Devuelve las acciones que más bajan el riesgo de un cliente | 2 |
-| `GET /insights` | Devuelve las cifras y los segmentos para la página de Hallazgos | 2 |
-| `GET /model-info` | Devuelve el algoritmo, la fecha de entrenamiento y las métricas del modelo | 3 |
+| `GET /insights` | Devuelve las cifras y los grupos para los gráficos de la página de Hallazgos | 2 |
+| `GET /segments` | Devuelve los segmentos de K-Means: nombre, descripción, cuántos clientes tiene y su tasa de abandono | 3 |
+| `GET /model-info` | Devuelve el algoritmo, la fecha de entrenamiento y las métricas de los dos modelos | 3 |
 | `POST /predict/batch` | Predice todos los clientes de un CSV (hasta 5 MB) | 3 |
 
 Los detalles de `/health` y `/predict` (campos, respuestas y errores) están en el README, en [Contratos entre equipos](../README.md#-contratos-entre-equipos). Las demás rutas se documentan ahí cuando se construyan. Cómo funciona `/predict` por dentro está explicado en [api-fase1.md](api-fase1.md).
@@ -87,9 +92,9 @@ Los detalles de `/health` y `/predict` (campos, respuestas y errores) están en 
 |---|---|
 | `app.py` | Define las rutas. Solo recibe la petición, llama al archivo que hace el trabajo y responde. Ya existe, con `/health` y `/predict` |
 | `schema.py` | Revisa que lleguen bien los 19 campos del cliente. También aplica las reglas de coherencia: si no tiene teléfono, no puede tener líneas múltiples; si no tiene internet, no puede tener servicios de internet; y debe tener al menos teléfono o internet |
-| `model_service.py` | Carga el modelo indicado en `MODEL_PATH` (archivo `.env`). Si no existe, usa el modelo de prueba. También define los niveles de riesgo |
+| `model_service.py` | Carga el modelo de churn indicado en `MODEL_PATH` (archivo `.env`) y, en la fase 3, también el de segmentación. Si no existen, usa modelos de prueba. También define los niveles de riesgo |
 | `recommendations.py` | Guarda la lista de acciones de retención y calcula cuáles ayudan más |
-| `data_service.py` | Calcula las cifras de Hallazgos y elige los clientes de ejemplo. Lee `data/processed/`, o `data/raw/` mientras no exista |
+| `data_service.py` | Calcula las cifras de Hallazgos y elige los clientes de ejemplo. Lee `data/processed/`, o `data/raw/` mientras no exista. En la fase 3, también lee `models/segments_info.json` para `/segments` |
 | `batch.py` | Lee el CSV, revisa cada fila y resume los resultados. Las filas con error se informan, pero no detienen el resto |
 
 Las pruebas van en `tests/` y se ejecutan con `pytest`.
@@ -108,10 +113,10 @@ Cada fase termina con un **Pull Request de `api-web` a `main`**, que revisa Mich
 | **0. Preparación** | La base de la API (`/health`) y de las 5 páginas, los archivos compartidos y el contrato v1 | Días 1 y 2 | ✅ Hecha |
 | **1. Primera versión completa** | `schema.py`, `POST /predict` con el modelo de prueba y sus pruebas. `predict.html` con el formulario, el resultado, el ingreso en riesgo y los errores | Semana 1 | ✅ La API (PR #5) y `predict.html`, con el nuevo diseño |
 | **2. Lo que la hace destacar** | Clientes de ejemplo, recomendaciones y simulador, Hallazgos, Inicio y Sobre el proyecto | Semana 2 | ⏳ |
-| **3. Modelo real y lotes** | El modelo del equipo de Modelos, `/model-info`, `POST /predict/batch` y `batch.html` | Semana 3 | ⏳ |
+| **3. Modelos reales, segmentos y lotes** | Los dos modelos del equipo de Modelos (segmentación y churn). Los segmentos en Predecir, Hallazgos y Por lotes, con `/segments` y el campo `segment` de `/predict`. También `/model-info`, `POST /predict/batch` y `batch.html` | Semana 3 | ⏳ |
 | **4. Pulido y demo** | Revisar la vista en celular, la accesibilidad y los textos. Completar el README y preparar el guion de la demo. Publicar en internet es opcional | Semana 4 | ⏳ |
 
-**Guion de la demo (3 minutos):** Inicio → un cliente de alto riesgo → su recomendación → el simulador → Hallazgos → predicción por lotes con el dataset completo → Sobre el proyecto.
+**Guion de la demo (3 minutos):** Inicio → un cliente de alto riesgo, su segmento y su recomendación → el simulador → Hallazgos y los segmentos → predicción por lotes con el dataset completo → Sobre el proyecto.
 
 ---
 
@@ -121,7 +126,7 @@ Cada persona trabaja **solo en sus archivos**. Así dos personas no cambian el m
 
 | Persona | Responsable de | Archivos |
 |---|---|---|
-| Michael (mantenedor del repo) | Toda la página web (las 5 páginas y los archivos compartidos), contratos con los otros equipos, conectar el modelo real, predicción por lotes, README y revisión de los Pull Requests | `web/` y `src/api/batch.py` |
+| Michael (mantenedor del repo) | Toda la página web (las 5 páginas y los archivos compartidos), contratos con los otros equipos, conectar los modelos reales, predicción por lotes, README y revisión de los Pull Requests | `web/` y `src/api/batch.py` |
 | Christopher ([chpujols-DS07](https://github.com/chpujols-DS07)) | La API y sus pruebas | `src/api/` (menos `batch.py`) y `tests/` |
 
 > [!IMPORTANT]
@@ -176,26 +181,32 @@ Abre `http://localhost:8000` en el navegador. Arriba a la derecha, un punto verd
 
 ## 📜 Lo que necesitamos de los otros equipos
 
-Mientras tanto la API usa el modelo de prueba, así que nadie se queda bloqueado.
+Mientras tanto la API usa modelos de prueba, así que nadie se queda bloqueado.
 
 | Equipo | Qué necesitamos | Para la fase | Estado |
 |---|---|---|---|
-| 🤖 Modelos | Los detalles están en la lista de abajo | 3 | ⏳ Pendiente |
+| 🤖 Modelos | Los dos modelos: primero la segmentación y después el modelo de churn. Los detalles están en la lista de abajo | 3 | ⏳ Pendiente |
 | 🧹🔍 Limpieza y EDA | El nombre del archivo limpio en `data/processed/`. Saber qué hacen con los 11 `TotalCharges` vacíos (proponemos tratarlos como 0). Sus 4 o 5 hallazgos principales, en una frase cada uno | 2 | ⏳ Pendiente |
 | 📊 Dashboard | Una paleta de colores común, para que la web y Power BI se vean como un solo proyecto. Proponemos la de la web: azul `#0071e3` y, para el riesgo, verde `#34c759`, naranja `#ff9500` y rojo `#ff3b30` | 2 | ⏳ Pendiente |
 | ⚙️ RPA (idea opcional) | Su bot podría usar `POST /predict/batch`, por ejemplo para generar cada semana la lista de clientes en riesgo | — | 💡 Propuesta |
 
 **Lo que necesitamos del equipo de Modelos:**
 
-- El modelo final guardado con `joblib` como un **Pipeline de scikit-learn**, es decir, el preprocesamiento y el modelo juntos.
-- Que tenga `predict_proba` y acepte las columnas originales del dataset.
-- Que esté entrenado con **scikit-learn 1.9.1**, la versión del `requirements.txt`.
-- El archivo `models/model_info.json`, con el algoritmo, la fecha, las columnas, el umbral y las métricas.
-- Si se puede, los `customerID` del conjunto de prueba.
+Los dos modelos, entrenados con **scikit-learn 1.9.1** (la versión del `requirements.txt`) y guardados con `joblib` como un **Pipeline de scikit-learn**, es decir, el preprocesamiento y el modelo juntos. Los dos deben aceptar las columnas originales del dataset.
+
+1. **La segmentación (K-Means), que llega primero:**
+   - El `Pipeline` con el escalado, el one-hot y `KMeans`, con `random_state` fijo.
+   - El archivo `models/segments_info.json`, con el nombre, la descripción, la cantidad de clientes y la tasa de abandono de cada segmento.
+   - El detalle está en el README, en [Contratos entre equipos](../README.md#-contratos-entre-equipos).
+2. **El modelo de churn:**
+   - Que tenga `predict_proba`.
+   - El archivo `models/model_info.json`, con el algoritmo, la fecha, las columnas, el umbral y las métricas.
+   - Si se puede, los `customerID` del conjunto de prueba.
 
 ---
 
 ## ❓ Pendiente de decidir
 
+- Si el segmento también entra como columna del modelo de churn. Lo confirma el equipo de Modelos con el profesor. Si entra, el segmento se calcula dentro del `Pipeline` y la API sigue recibiendo los mismos 19 campos.
 - Los niveles de riesgo definitivos, junto con el equipo de Modelos.
 - Si al final publicamos la web en internet (es opcional).
