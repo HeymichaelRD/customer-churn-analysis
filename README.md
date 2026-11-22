@@ -113,6 +113,8 @@ Cada equipo trabaja **en su carpeta** y **en su rama**. Así nadie pisa el traba
 
 > [!TIP]
 > El plan del equipo API y Web (qué vamos a construir, en qué fases y quién hace qué) está en [`docs/plan-api-web.md`](docs/plan-api-web.md).
+>
+> El avance, los criterios y los pendientes del equipo de Limpieza y EDA están en [`docs/plan-cleaning-eda.md`](docs/plan-cleaning-eda.md).
 
 ---
 
@@ -346,10 +348,10 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 
 | Entrega | De → Para | Archivo / endpoint | Estado |
 |---|---|---|---|
-| Datos limpios | Limpieza y EDA → Modelos | `data/processed/________.csv` | ⏳ Por definir |
+| Datos limpios | Limpieza y EDA → Modelos | `data/processed/telco_churn_clean.csv` (lo genera `src/cleaning/clean_data.py`) | Listo |
 | Segmentación de clientes | Modelos → API, Power BI | `models/________.pkl` y `models/segments_info.json` | 📝 Borrador (abajo) |
 | Modelo de churn | Modelos → API | `models/________.pkl` | ⏳ Por definir |
-| Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/________.csv`, con el segmento de cada cliente | ⏳ Por definir |
+| Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/telco_churn_dashboard.csv` (lo genera `src/cleaning/clean_data.py`). Modelos agrega la columna `segment` uniendo por `customerID` | Parte de Limpieza y EDA lista; falta el segmento de Modelos |
 | Predicción | API → Web | `GET /health` y `POST /predict` | 📝 Borrador v1 (abajo) |
 
 <details>
@@ -550,7 +552,7 @@ Avísale a Michael. Si fue una contraseña, cámbiala de inmediato: aunque se bo
 | Equipo | Integrantes |
 |---|---|
 | 🛠️ Mantenedor del repo | Michael ([HeymichaelRD](https://github.com/HeymichaelRD)) |
-| 🧹 Limpieza y 🔍 EDA | _(por completar)_ |
+| 🧹 Limpieza y 🔍 EDA | Bryan Abreu ([BryanAbreuu](https://github.com/BryanAbreuu)), Jhonfrer Villar, Leonis Matos |
 | 🤖 Modelos de ML | _(por completar)_ |
 | 🔌 API y 🌐 Web | Michael ([HeymichaelRD](https://github.com/HeymichaelRD)),   Christopher ([chpujols-DS07](https://github.com/chpujols-DS07)) |
 | 📊 Dashboard | _(por completar)_ |
