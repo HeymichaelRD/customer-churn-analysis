@@ -8,19 +8,37 @@ Qué entregó el equipo de Limpieza y EDA, qué criterio se usó en cada decisi�
 
 ---
 
-## Qué entregamos y dónde está
+## Dónde encontrar cada cosa
 
-Son **3 archivos** escritos por nosotros. Los otros 2 son CSV que genera el script y que los demás equipos usan directamente.
+| Busco... | Está en |
+|---|---|
+| Los datos limpios para trabajar (Modelos, API) | [`data/processed/telco_churn_clean.csv`](../data/processed/telco_churn_clean.csv) |
+| Los datos para Power BI | [`data/output/telco_churn_dashboard.csv`](../data/output/telco_churn_dashboard.csv) |
+| Qué archivo de datos usar y qué significan las columnas extra | [`data/README.md`](../data/README.md) |
+| El análisis completo (EDA) con gráficos | [`notebooks/02_eda_bryan.ipynb`](../notebooks/02_eda_bryan.ipynb) (se ve directo en GitHub) |
+| Los 5 hallazgos en una frase | [Hallazgos principales](#hallazgos-principales), en este documento |
+| El script de limpieza y cómo correrlo | [`src/cleaning/clean_data.py`](../src/cleaning/clean_data.py) y [`src/cleaning/README.md`](../src/cleaning/README.md) |
+| Por qué se tomó cada decisión | [Criterios de cada decisión](#criterios-de-cada-decisión-bryan-abreu), en este documento |
+| Qué falta y quién lo hace | [Pendientes del equipo](#pendientes-del-equipo), en este documento |
+| El guion para presentar nuestra parte | [`docs/presentacion-cleaning-eda.md`](presentacion-cleaning-eda.md) |
+
+---
+
+## Qué entregamos
+
+Son **3 partes** escritas por nosotros. Los 2 CSV los genera el script y los demás equipos los usan directamente.
 
 | Parte | Archivo | Para qué sirve |
 |---|---|---|
 | **1. EDA** | `notebooks/02_eda_bryan.ipynb` | El análisis: verificación de la data, gráficos, hallazgos y las notas de criterio |
 | **2. Limpieza** | `src/cleaning/clean_data.py` | Limpia la data y genera los 2 CSV de abajo |
-| **3. Este documento** | `docs/plan-cleaning-eda.md` | Dónde estamos, qué criterios usamos y qué sigue |
+| **3. Dónde estamos y qué sigue** | `docs/plan-cleaning-eda.md` (este documento) y `docs/presentacion-cleaning-eda.md` (guion) | Criterios, pendientes, conexión con el proyecto y cómo presentarlo |
 | Generado por la limpieza | `data/processed/telco_churn_clean.csv` | Datos limpios para Modelos y la API |
 | Generado por la limpieza | `data/output/telco_churn_dashboard.csv` | Datos para Power BI. Falta la columna `segment`, que agrega el equipo de Modelos |
 
-También se actualizó el `README.md`: integrantes del equipo, nombres de los CSV en la tabla de contratos y un enlace a este documento.
+Cada carpeta tiene un `README.md` corto que explica qué hay en ella: [`data/`](../data/README.md), [`src/cleaning/`](../src/cleaning/README.md) y [`notebooks/`](../notebooks/README.md).
+
+También se actualizó el `README.md` principal: integrantes del equipo, nombres de los CSV en la tabla de contratos y un enlace a este documento.
 
 Lo que pidió el equipo API y Web ya está resuelto: el nombre del CSV limpio (arriba), qué hacer con los `TotalCharges` vacíos (se llenan con 0) y los 5 hallazgos (más abajo).
 
@@ -34,6 +52,7 @@ Lo que pidió el equipo API y Web ya está resuelto: el nombre del CSV limpio (a
 | 19 de noviembre de 2026 | Agregué al notebook la verificación de la data (que es la oficial y cumple el contrato de la API) y la comprobación de las cifras contra las del equipo Web. Agregué las notas de criterio para que el equipo las revise | `notebooks/02_eda_bryan.ipynb` |
 | 22 de noviembre de 2026 | Creé el script de limpieza, que genera el CSV limpio y los datos para el dashboard. El notebook comprueba que su limpieza es idéntica a la del script | `src/cleaning/clean_data.py` |
 | 22 de noviembre de 2026 | Actualicé el README (integrantes y tabla de contratos) y escribí este documento | `README.md`, `docs/plan-cleaning-eda.md` |
+| 22 de noviembre de 2026 | Agregué una guía corta en cada carpeta del equipo, el guion de presentación y el índice "Dónde encontrar cada cosa" | `data/README.md`, `src/cleaning/README.md`, `notebooks/README.md`, `docs/presentacion-cleaning-eda.md` |
 
 ---
 
