@@ -5,29 +5,8 @@ import json
 import pytest
 
 from app import app
-
+from conftest import VALID_CUSTOMER  # el fixture "client" también está en conftest.py
 # El primer cliente del dataset: es el ejemplo del contrato en el README.
-VALID_CUSTOMER = {
-    "gender": "Female",
-    "SeniorCitizen": 0,
-    "Partner": "Yes",
-    "Dependents": "No",
-    "tenure": 1,
-    "PhoneService": "No",
-    "MultipleLines": "No phone service",
-    "InternetService": "DSL",
-    "OnlineSecurity": "No",
-    "OnlineBackup": "Yes",
-    "DeviceProtection": "No",
-    "TechSupport": "No",
-    "StreamingTV": "No",
-    "StreamingMovies": "No",
-    "Contract": "Month-to-month",
-    "PaperlessBilling": "Yes",
-    "PaymentMethod": "Electronic check",
-    "MonthlyCharges": 29.85,
-    "TotalCharges": 29.85,
-}
 
 
 @pytest.fixture
