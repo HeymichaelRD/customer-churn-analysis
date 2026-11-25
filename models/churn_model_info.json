@@ -1,0 +1,27 @@
+{
+  "model": "LogisticRegression",
+  "artifact": "models/telco_churn_logistic.joblib",
+  "threshold": 0.33,
+  "positive_class": "Yes",
+  "input_columns": [
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "tenure",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "OnlineSecurity",
+    "OnlineBackup",
+    "DeviceProtection",
+    "TechSupport",
+    "StreamingTV",
+    "StreamingMovies",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod",
+    "MonthlyCharges",
+    "TotalCharges"
+  ]
+}
