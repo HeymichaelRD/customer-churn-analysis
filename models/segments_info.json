@@ -1,6 +1,6 @@
 {
   "algorithm": "KMeans",
-  "k": 8,
+  "k": 4,
   "columns": [
     "tenure",
     "MonthlyCharges",
@@ -10,59 +10,31 @@
   "segments": [
     {
       "id": 0,
-      "name": "Mes a mes, fibra, antigüedad media-alta",
-      "description": "100% mes a mes, 83% fibra; antigüedad mediana 43 meses.",
-      "customers": 872,
-      "churn_rate": 0.3349
+      "name": "Relación estable",
+      "description": "Antigüedad mediana 54 meses; 62% contrato de dos años; cargo mensual mediano 24.95; churn 4%.",
+      "customers": 1151,
+      "churn_rate": 0.0374
     },
     {
       "id": 1,
-      "name": "Contratos largos, sin internet y cargo bajo",
-      "description": "86% sin internet; contratos de uno o dos años; cargo mensual bajo.",
-      "customers": 549,
-      "churn_rate": 0.0291
+      "name": "Inicio por afianzar",
+      "description": "Antigüedad mediana 8 meses; 75% mes a mes; cargo mensual mediano 25.55; churn 25%.",
+      "customers": 1739,
+      "churn_rate": 0.2484
     },
     {
       "id": 2,
-      "name": "Contrato de dos años, antigüedad alta",
-      "description": "100% contrato de dos años; antigüedad mediana 69 meses; cargo mediano alto.",
-      "customers": 882,
-      "churn_rate": 0.0431
+      "name": "Valor consolidado",
+      "description": "Antigüedad mediana 61 meses; cargo mensual mediano 94.25; 67% fibra; churn 14%.",
+      "customers": 1899,
+      "churn_rate": 0.1417
     },
     {
       "id": 3,
-      "name": "Clientes nuevos, mes a mes y bajo cargo",
-      "description": "Antigüedad mediana 5 meses; mes a mes; mayoría DSL y cargo bajo.",
-      "customers": 1337,
-      "churn_rate": 0.3126
-    },
-    {
-      "id": 4,
-      "name": "Contrato anual, fibra y cargo alto",
-      "description": "100% contrato de un año; 78% fibra y cargo mensual alto.",
-      "customers": 574,
-      "churn_rate": 0.1672
-    },
-    {
-      "id": 5,
-      "name": "Mayormente dos años, sin internet y bajo cargo",
-      "description": "87% contrato de dos años; 78% sin internet y cargo mensual bajo.",
-      "customers": 685,
-      "churn_rate": 0.0248
-    },
-    {
-      "id": 6,
-      "name": "Clientes recientes, mes a mes y fibra, alto riesgo",
-      "description": "99% mes a mes; 85% fibra; antigüedad mediana 9 meses y churn más alto.",
-      "customers": 1656,
-      "churn_rate": 0.5676
-    },
-    {
-      "id": 7,
-      "name": "Contrato anual, DSL y antigüedad media",
-      "description": "96% contrato de un año; 82% DSL; antigüedad mediana 33 meses.",
-      "customers": 488,
-      "churn_rate": 0.1066
+      "name": "Retención prioritaria",
+      "description": "Antigüedad mediana 13 meses; 93% mes a mes; 81% fibra; churn 50%.",
+      "customers": 2254,
+      "churn_rate": 0.4991
     }
   ]
 }

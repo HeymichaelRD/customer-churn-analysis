@@ -1,7 +1,47 @@
 {
-  "model": "LogisticRegression",
-  "artifact": "models/telco_churn_logistic.joblib",
-  "threshold": 0.33,
+  "model": "Random Forest",
+  "estimator_class": "RandomForestClassifier",
+  "variant": "Servicios agrupados en dos conteos",
+  "feature_engineering_module": "src.modeling.feature_engineering.build_model_features",
+  "engineered_features": [
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "tenure",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod",
+    "MonthlyCharges",
+    "TotalCharges",
+    "SecuritySupportCount",
+    "StreamingServicesCount"
+  ],
+  "selection_reason": "F1 medio casi empatado en cinco divisiones; Random Forest tuvo recall medio ligeramente mayor.",
+  "repeated_holdout_mean": {
+    "f1_yes": 0.628954769178734,
+    "recall_yes": 0.7641711229946524
+  },
+  "test_metrics": {
+    "precision_yes": 0.5081669691470054,
+    "recall_yes": 0.7486631016042781,
+    "f1_yes": 0.6054054054054054
+  },
+  "test_confusion_matrix_labels_0_1": [
+    [
+      764,
+      271
+    ],
+    [
+      94,
+      280
+    ]
+  ],
+  "artifact": "models/telco_churn_random_forest.joblib",
+  "threshold": 0.46,
   "positive_class": "Yes",
   "input_columns": [
     "gender",
