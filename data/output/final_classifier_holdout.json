@@ -1,0 +1,21 @@
+{
+  "model": "Random Forest",
+  "variant": "Servicios agrupados en dos conteos",
+  "threshold": 0.46,
+  "threshold_source": "Median of OOF-tuned thresholds in the five model-selection splits.",
+  "random_state": 47,
+  "precision_yes": 0.5081669691470054,
+  "recall_yes": 0.7486631016042781,
+  "f1_yes": 0.6054054054054054,
+  "confusion_matrix_labels_0_1": [
+    [
+      764,
+      271
+    ],
+    [
+      94,
+      280
+    ]
+  ],
+  "note": "This final split was not used to select the classifier or threshold."
+}
