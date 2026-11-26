@@ -349,46 +349,48 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 | Entrega | De → Para | Archivo / endpoint | Estado |
 |---|---|---|---|
 | Datos limpios | Limpieza y EDA → Modelos | `data/processed/telco_churn_clean.csv` (lo genera `src/cleaning/clean_data.py`) | Listo |
-| Segmentación de clientes | Modelos → API, Power BI | `models/telco_customer_segments.joblib` y `models/segments_info.json` | K-Means k=8 |
-| Modelo de churn | Modelos → API | `models/telco_churn_logistic.joblib` y `models/churn_model_info.json` (umbral 0.33) | Regresión logística seleccionada |
-| Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/telco_churn_dashboard_with_models.csv` | Datos limpios listos; salida de Modelos en rama `modeling` |
+| Segmentación de clientes | Modelos → API, Power BI | `models/________.pkl` y `models/segments_info.json` | 📝 Borrador (abajo) |
+| Modelo de churn | Modelos → API | `models/________.pkl` | ⏳ Por definir |
+| Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/telco_churn_dashboard.csv` (lo genera `src/cleaning/clean_data.py`). Modelos agrega la columna `segment` uniendo por `customerID` | Parte de Limpieza y EDA lista; falta el segmento de Modelos |
 | Predicción | API → Web | `GET /health` y `POST /predict` | 📝 Borrador v1 (abajo) |
 
 <details>
-<summary><b>🧩 Segmentación de clientes (selección del equipo de Modelos)</b></summary>
+<summary><b>🧩 Segmentación de clientes (borrador)</b></summary>
 
-El equipo de Modelos seleccionó **K-Means con k=8**. Los segmentos describen perfiles de clientes y se cruzan después con el churn real; `Churn` no entra en el entrenamiento de K-Means.
+El profesor pidió que, **antes** del modelo de churn, el equipo de Modelos segmente a los clientes con **K-Means**. Los segmentos sirven para describir a los clientes y decidir qué hacer con cada grupo: se muestran en el dashboard y en la página web, y ayudan a elegir las recomendaciones de retención.
 
-| Qué | Entrega acordada |
+| Qué | Detalle |
 |---|---|
-| **Pipeline** | `models/telco_customer_segments.joblib`; recibe los campos originales y devuelve `segment` de 0 a 7. |
-| **Variables** | `tenure`, `MonthlyCharges` y `Contract`, con escalado/codificación; excluye `customerID`, `Churn` y `TotalCharges`. |
-| **Selección de k** | k=8 tuvo el mayor silhouette en el rango probado (0.431). Se elige por perfiles diferenciados; los nombres y tasas observadas están en `models/segments_info.json`. |
-| **Repetibilidad** | `random_state=42`. Los IDs pueden cambiar al volver a entrenar; revisar nombres antes de publicar una nueva versión. |
-| **Power BI** | `data/output/telco_churn_dashboard_with_models.csv`, unido por `customerID`. |
+| **Modelo** | Un `Pipeline` de scikit-learn (escalado + one-hot + `KMeans`) guardado con `joblib` en `models/`. Recibe las columnas originales del dataset y, con `predict`, devuelve el número de segmento de cada cliente |
+| **Columnas** | Las elige el equipo de Modelos. **Nunca** `Churn`, porque es aprendizaje no supervisado, ni `customerID` |
+| **Número de segmentos (k)** | Se elige con el método del codo y con la silueta. El notebook muestra los dos gráficos |
+| **Que se pueda repetir** | `random_state` fijo (por ejemplo, `42`), para que al volver a entrenar salgan los mismos grupos |
+| **Nombres** | En `models/segments_info.json`, cada segmento con un nombre corto, una descripción, cuántos clientes tiene y su tasa de abandono. Los números (0, 1, 2…) no dicen nada por sí solos y pueden cambiar si se vuelve a entrenar |
+| **Para Power BI** | El segmento de cada cliente (`customerID` y `segment`) en el CSV de `data/output/` |
 
-Ejemplo del contrato de `models/segments_info.json` (datos de esta corrida):
+Ejemplo de `models/segments_info.json` (los valores son ilustrativos):
 
 ```json
 {
   "algorithm": "KMeans",
-  "k": 8,
-  "columns": ["tenure", "MonthlyCharges", "Contract"],
-  "random_state": 42,
+  "k": 4,
+  "columns": ["tenure", "MonthlyCharges"],
   "segments": [
     {
       "id": 0,
-      "name": "Mes a mes, fibra, antigüedad media-alta",
-      "description": "100% mes a mes, 83% fibra; antigüedad mediana 43 meses.",
-      "customers": 872,
-      "churn_rate": 0.335
+      "name": "Nuevos con cargo alto",
+      "description": "Poco tiempo en la empresa y un cargo mensual alto",
+      "customers": 2204,
+      "churn_rate": 0.49
     }
   ]
 }
 ```
 
 > [!IMPORTANT]
-> Las variables numéricas se escalan antes de K-Means. Los nombres resumen características observadas y no implican causalidad. “Cargo mensual” no significa consumo: el dataset no mide uso de datos o llamadas.
+> Escalen los datos antes de K-Means (`StandardScaler`). K-Means agrupa por distancias: sin escalar, una columna con números grandes, como `TotalCharges`, decide sola los grupos.
+
+**Por confirmar con el profesor:** si el segmento también entra como **columna del modelo de churn**. Si entra, el `Pipeline` del modelo de churn calcula el segmento por dentro, con el K-Means entrenado **solo con los datos de entrenamiento**. Así la API sigue recibiendo los mismos 19 campos.
 
 </details>
 
