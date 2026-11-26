@@ -1,0 +1,40 @@
+{
+  "algorithm": "KMeans",
+  "k": 4,
+  "columns": [
+    "tenure",
+    "MonthlyCharges",
+    "Contract"
+  ],
+  "random_state": 42,
+  "segments": [
+    {
+      "id": 0,
+      "name": "Relación estable",
+      "description": "Antigüedad mediana 54 meses; 62% contrato de dos años; cargo mensual mediano 24.95; churn 4%.",
+      "customers": 1151,
+      "churn_rate": 0.0374
+    },
+    {
+      "id": 1,
+      "name": "Inicio por afianzar",
+      "description": "Antigüedad mediana 8 meses; 75% mes a mes; cargo mensual mediano 25.55; churn 25%.",
+      "customers": 1739,
+      "churn_rate": 0.2484
+    },
+    {
+      "id": 2,
+      "name": "Valor consolidado",
+      "description": "Antigüedad mediana 61 meses; cargo mensual mediano 94.25; 67% fibra; churn 14%.",
+      "customers": 1899,
+      "churn_rate": 0.1417
+    },
+    {
+      "id": 3,
+      "name": "Retención prioritaria",
+      "description": "Antigüedad mediana 13 meses; 93% mes a mes; 81% fibra; churn 50%.",
+      "customers": 2254,
+      "churn_rate": 0.4991
+    }
+  ]
+}

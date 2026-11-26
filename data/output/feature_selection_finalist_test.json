@@ -1,0 +1,39 @@
+{
+  "variant": "Servicios agrupados en dos conteos",
+  "model": "Regresi\u00f3n log\u00edstica",
+  "input_features": 15,
+  "threshold_selected_on_train_oof": 0.295,
+  "test_precision_yes": 0.5099457504520796,
+  "test_recall_yes": 0.7540106951871658,
+  "test_f1_yes": 0.6084142394822006,
+  "test_confusion_matrix_labels_0_1": [
+    [
+      764,
+      271
+    ],
+    [
+      92,
+      282
+    ]
+  ],
+  "note": "Threshold and candidate were selected without using the test split.",
+  "baseline_reference": {
+    "variant": "Base completa",
+    "model": "Regresi\u00f3n log\u00edstica",
+    "input_features": 19,
+    "threshold_selected_on_train_oof": 0.33,
+    "test_precision_yes": 0.538,
+    "test_recall_yes": 0.7192513368983957,
+    "test_f1_yes": 0.6155606407322655,
+    "test_confusion_matrix_labels_0_1": [
+      [
+        804,
+        231
+      ],
+      [
+        105,
+        269
+      ]
+    ]
+  }
+}
