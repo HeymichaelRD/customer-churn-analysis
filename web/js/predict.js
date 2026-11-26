@@ -418,6 +418,7 @@ function showResult(sent, answer) {
   $("#r-month").replaceChildren(formatMoney(monthly), " ", h("small", { text: "/mes" }));
   $("#r-year").textContent = formatMoney(monthly * 12, 0);
 
+  showSegment(answer.segment);
   showPayload(sent, `Respuesta 200\n${JSON.stringify(answer, null, 2)}`);
 
   $("#mini-value").textContent = formatPercent(probability, 0);
@@ -472,6 +473,19 @@ function clearErrors() {
   live.textContent = "En vivo";
   $("#r-error").hidden = true;
   clearFieldError();
+}
+
+/**
+ * Segmento K-Means del cliente. Se muestran el nombre y la descripción que manda la API:
+ * el id no se usa porque puede cambiar si el equipo de Modelos vuelve a entrenar.
+ * Si la API no tiene el modelo de segmentación, segment es null y la sección se oculta.
+ */
+function showSegment(segment) {
+  const box = $("#r-segment");
+  box.hidden = !segment;
+  if (!segment) return;
+  $("#r-segment-name").textContent = segment.name;
+  $("#r-segment-desc").textContent = segment.description;
 }
 
 /** "Ver la petición a la API": lo que se envió y lo que respondió. */
