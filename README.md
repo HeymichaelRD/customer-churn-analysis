@@ -349,10 +349,10 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 | Entrega | De → Para | Archivo / endpoint | Estado |
 |---|---|---|---|
 | Datos limpios | Limpieza y EDA → Modelos | `data/processed/telco_churn_clean.csv` (lo genera `src/cleaning/clean_data.py`) | Listo |
-| Segmentación de clientes | Modelos → API, Power BI | `models/________.pkl` y `models/segments_info.json` | 📝 Borrador (abajo) |
-| Modelo de churn | Modelos → API | `models/________.pkl` | ⏳ Por definir |
+| Segmentación de clientes | Modelos → API, Power BI | `models/telco_customer_segments.joblib` y `models/segments_info.json` (K-Means, k=4) | Listo; la API ya lo usa |
+| Modelo de churn | Modelos → API | `models/telco_churn_random_forest.joblib` y `models/churn_model_info.json` (umbral `0.460`). Necesita `src/modeling/feature_engineering.py` al cargarse | Listo; la API ya lo usa |
 | Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/telco_churn_dashboard.csv` (lo genera `src/cleaning/clean_data.py`). Modelos agrega la columna `segment` uniendo por `customerID` | Parte de Limpieza y EDA lista; falta el segmento de Modelos |
-| Predicción | API → Web | `GET /health` y `POST /predict` | 📝 Borrador v1 (abajo) |
+| Predicción | API → Web | `GET /health` y `POST /predict` | v2: con el modelo real y el segmento (abajo) |
 
 <details>
 <summary><b>🧩 Segmentación de clientes (borrador)</b></summary>
@@ -395,17 +395,19 @@ Ejemplo de `models/segments_info.json` (los valores son ilustrativos):
 </details>
 
 <details>
-<summary><b>📝 Contrato API → Web (borrador v1)</b></summary>
+<summary><b>📝 Contrato API → Web (v2)</b></summary>
 
 **Conexión:** la API corre en `http://localhost:5000` y habla en JSON. Solo acepta llamadas de la página web (`http://localhost:8000` o `http://127.0.0.1:8000`).
+
+**Modelos:** en el `.env`, `MODEL_PATH=models/telco_churn_random_forest.joblib` (ver `.env.example`). El umbral sale de `models/churn_model_info.json` y los nombres de los segmentos, de `models/segments_info.json`. Si `MODEL_PATH` no está definida, la API usa un modelo de prueba y `model_version` es `"demo"`. Con `REQUIRE_MODEL=1`, si falta un modelo la API no arranca.
 
 #### `GET /health`: ¿está encendida la API?
 
 ```json
-{ "status": "ok", "model_version": "demo" }
+{ "status": "ok", "model_version": "telco_churn_random_forest" }
 ```
 
-`model_version` es `"demo"` mientras la API use un modelo provisional. Cuando llegue el modelo real del equipo de Modelos, dirá su versión.
+`model_version` es el nombre del archivo del modelo, o `"demo"` si la API usa el modelo de prueba.
 
 #### `POST /predict`: riesgo de abandono de un cliente
 
@@ -462,18 +464,24 @@ Ejemplo (el primer cliente del dataset):
 ```json
 {
   "churn": true,
-  "probability": 0.78,
+  "probability": 0.63,
   "risk_level": "high",
-  "model_version": "demo"
+  "segment": {
+    "id": 1,
+    "name": "Inicio por afianzar",
+    "description": "Antigüedad mediana 8 meses; 75% mes a mes; cargo mensual mediano 25.55; churn 25%."
+  },
+  "model_version": "telco_churn_random_forest"
 }
 ```
 
 | Campo | Significado |
 |---|---|
-| `churn` | `true` si el modelo predice que el cliente **abandona** |
+| `churn` | `true` si el modelo predice que el cliente **abandona**: `probability` es `0.46` o más (el umbral de `models/churn_model_info.json`; `0.50` con el modelo de prueba) |
 | `probability` | Probabilidad de abandono, de `0` a `1`, con 2 decimales |
 | `risk_level` | `"low"` (menos de 0.30), `"medium"` (de 0.30 a menos de 0.60) o `"high"` (0.60 o más). Umbrales provisionales |
-| `model_version` | `"demo"` o la versión del modelo real |
+| `segment` | Segmento K-Means del cliente: `id` (de `0` a `3`), `name` y `description`, tomados de `models/segments_info.json`. Es `null` si la API no tiene el modelo de segmentación. **No usen el `id` para elegir textos o colores:** puede cambiar si se vuelve a entrenar el modelo; usen `name` |
+| `model_version` | `"demo"` o el nombre del archivo del modelo real |
 
 #### Errores
 
@@ -488,12 +496,14 @@ Los mensajes van en español porque la página se los muestra al usuario. `field
 
 El detalle de cómo valida la API (orden de las revisiones y casos especiales) está en [docs/api-fase1.md](docs/api-fase1.md).
 
-**Por confirmar con otros equipos:**
+**Acordado con otros equipos:**
 
-1. **Modelos:** qué columnas usa el modelo. Si son menos de 19, se recorta este contrato.
-2. **Limpieza y EDA:** cómo tratan `TotalCharges` vacío (los 11 clientes con `tenure` 0).
-3. **Modelos:** a partir de qué probabilidad `churn` es `true` (por defecto, `0.5`).
-4. **Modelos:** cuando llegue el modelo de segmentación, `POST /predict` también devolverá el segmento del cliente (`segment`). Será la versión 2 de este contrato.
+1. **Modelos:** el modelo recibe los 19 campos originales; crea por dentro dos conteos de servicios (`src/modeling/feature_engineering.py`).
+2. **Limpieza y EDA:** `TotalCharges` vacío (los 11 clientes con `tenure` 0) se deja en `0`, igual que pide este contrato.
+3. **Modelos:** `churn` es `true` desde `0.46` (`models/churn_model_info.json`).
+4. **Modelos:** `POST /predict` devuelve el segmento del cliente (`segment`, K-Means con k=4).
+
+**Por confirmar con Modelos:** los niveles de `risk_level` (0.30 y 0.60). Con el umbral en 0.46, un cliente con 0.50 sale con `churn: true` y riesgo `"medium"`.
 
 Las demás rutas de la API (recomendaciones, clientes de ejemplo, hallazgos, segmentos, información de los modelos y predicción por lotes) se documentan aquí cuando se construyan.
 

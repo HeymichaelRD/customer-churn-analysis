@@ -44,7 +44,9 @@ Todo sigue el **contrato API → Web del README** ("Contratos entre equipos"). N
 
 **Ejemplo de respuesta correcta (200):**
 ```json
-{ "churn": true, "probability": 0.64, "risk_level": "high", "model_version": "demo" }
+{ "churn": true, "probability": 0.63, "risk_level": "high",
+  "segment": { "id": 1, "name": "Inicio por afianzar", "description": "…" },
+  "model_version": "telco_churn_random_forest" }
 ```
 
 **Ejemplo de error (400):**
@@ -93,22 +95,20 @@ Los datos pasan por cinco revisiones, en este orden. **En el primer problema se 
 
 ```
 ¿El .env tiene MODEL_PATH y ese archivo existe?
-   ├── Sí → usa ese modelo (el del equipo de Modelos)
-   └── No → usa un modelo de prueba          ← la situación actual
+   ├── Sí → usa ese modelo (el del equipo de Modelos)   ← con el .env de .env.example
+   └── No → usa un modelo de prueba (o no arranca, si REQUIRE_MODEL=1)
 ```
 
-- **El modelo de prueba** es una regresión logística entrenada con `data/raw`. Solo existe para que la web funcione mientras llega el modelo real. Sus resultados son de ejemplo, y por eso `model_version` responde `"demo"`.
-- **El modelo se carga una sola vez**, en la primera predicción, y se reutiliza en las siguientes. La primera petición tarda unos segundos; las demás son inmediatas.
+- **El modelo real** es `models/telco_churn_random_forest.joblib` (Random Forest). Se configura con `MODEL_PATH` en el `.env`; el umbral (`0.46`) sale de `models/churn_model_info.json`.
+- **El modelo de prueba** es una regresión logística entrenada con `data/raw`. Existe para trabajar sin el modelo real. Sus resultados son de ejemplo, y por eso `model_version` responde `"demo"`.
+- **Los modelos se cargan una sola vez, al arrancar la API**, y se reutilizan en todas las predicciones. Si falta un archivo o no coincide con el contrato, la API no arranca y el error dice cuál es.
+- **El segmento** sale del K-Means de `models/telco_customer_segments.joblib`, con los nombres de `models/segments_info.json`.
 
-### Cómo conectar el modelo real
+### Requisitos del modelo real
 
-Cuando el equipo de Modelos entregue su archivo:
-1. Ponerlo en la ruta de `MODEL_PATH` (hoy, `models/modelo.pkl`).
-2. Reiniciar la API.
-
-**No hay que cambiar código.** `model_version` pasa a mostrar el nombre del archivo.
-
-**Requisito para que funcione:** el modelo debe ser un **`Pipeline` de scikit-learn que reciba las 19 columnas originales del contrato** y haga él mismo el preprocesamiento. El modelo de prueba ya está construido así. Si el modelo real esperara datos ya transformados, la API tendría que repetir esa limpieza, y cualquier diferencia entre ambas haría que prediga mal sin dar error.
+- Debe ser un **`Pipeline` de scikit-learn que reciba las 19 columnas originales del contrato** y haga él mismo el preprocesamiento. Si esperara datos ya transformados, la API tendría que repetir esa limpieza, y cualquier diferencia haría que prediga mal sin dar error.
+- El pipeline de churn usa `src/modeling/feature_engineering.py` para crear los dos conteos de servicios. **Ese archivo debe estar en el repo** cuando la API carga el modelo: `model_service.py` agrega la raíz del repo al path de Python para que joblib lo encuentre.
+- Hay que cargarlo con la **misma versión de scikit-learn** con la que se entrenó (la de `requirements.txt`).
 
 ### Niveles de riesgo
 
@@ -118,7 +118,7 @@ Cuando el equipo de Modelos entregue su archivo:
 | de 0.30 a menos de 0.60 | `"medium"` |
 | 0.60 o más | `"high"` |
 
-- **`churn` es `true` desde 0.50.** Un cliente con 0.55 tiene `churn: true` y riesgo `"medium"`: no es una contradicción, son dos preguntas distintas (*¿se va?* y *¿qué tan urgente es?*).
+- **`churn` es `true` desde 0.46** con el modelo real (el umbral de `models/churn_model_info.json`) y desde 0.50 con el de prueba. Un cliente con 0.55 tiene `churn: true` y riesgo `"medium"`: no es una contradicción, son dos preguntas distintas (*¿se va?* y *¿qué tan urgente es?*).
 - **La probabilidad se redondea antes de calcular el nivel.** Si no, un 0.597 se mostraría como "0.60" pero con riesgo "medium".
 - **Los cortes son provisionales.** Están como constantes al inicio del archivo para cambiarlos en un solo lugar cuando Modelos los defina.
 
@@ -132,7 +132,7 @@ Estas cuatro van **más allá de lo que dice el contrato**. Las tomé por las ra
 |---|---|---|---|
 | 1 | **Se rechazan los campos que no están en el contrato** (por ejemplo, `customerID`) | Detecta errores de tipeo, como `contrato` en lugar de `Contract`, en vez de ignorarlos en silencio | La web debe enviar solo los 19 campos. Para ignorarlos, se borran 3 líneas en `validate_customer` |
 | 2 | **Reglas de coherencia en los dos sentidos:** con teléfono, `MultipleLines` no puede ser `"No phone service"`; con internet, los servicios no pueden ser `"No internet service"` | El contrato pide un solo sentido, pero en los 7,043 clientes del dataset se cumplen los dos. El modelo nunca vio esas combinaciones | Se quitan las dos reglas inversas en `_check_coherence` |
-| 3 | **`churn: true` desde 0.50** | Es el corte habitual mientras no se conozca el costo de cada error | Se cambia `CHURN_THRESHOLD` cuando Modelos lo defina |
+| 3 | **`churn: true` desde el umbral de Modelos** (0.46, en `models/churn_model_info.json`) | Modelos lo eligió por F1 y recall con validación cruzada. La API lo lee del JSON, así que no hay que cambiar código si lo ajustan | Modelos cambia `threshold` en el JSON |
 | 4 | **Se rechaza un cliente sin teléfono ni internet** (sugerido en la revisión del PR #5) | En el dataset no hay ninguno (0 de 7,043), así que el modelo nunca vio ese caso | Se quita la primera regla de `_check_coherence` |
 
 ---

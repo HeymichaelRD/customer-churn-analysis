@@ -4,43 +4,7 @@ import json
 
 import pytest
 
-from app import app
-
-# El primer cliente del dataset: es el ejemplo del contrato en el README.
-VALID_CUSTOMER = {
-    "gender": "Female",
-    "SeniorCitizen": 0,
-    "Partner": "Yes",
-    "Dependents": "No",
-    "tenure": 1,
-    "PhoneService": "No",
-    "MultipleLines": "No phone service",
-    "InternetService": "DSL",
-    "OnlineSecurity": "No",
-    "OnlineBackup": "Yes",
-    "DeviceProtection": "No",
-    "TechSupport": "No",
-    "StreamingTV": "No",
-    "StreamingMovies": "No",
-    "Contract": "Month-to-month",
-    "PaperlessBilling": "Yes",
-    "PaymentMethod": "Electronic check",
-    "MonthlyCharges": 29.85,
-    "TotalCharges": 29.85,
-}
-
-
-@pytest.fixture
-def client():
-    app.config["TESTING"] = True
-    with app.test_client() as test_client:
-        yield test_client
-
-
-def customer(**changes):
-    """Copia del cliente válido con algunos campos cambiados (o quitados, si el valor es ...)."""
-    data = {**VALID_CUSTOMER, **changes}
-    return {k: v for k, v in data.items() if v is not ...}
+from conftest import INTERNET_ADDONS, VALID_CUSTOMER, customer
 
 
 # --- Respuestas correctas ------------------------------------------------
@@ -51,7 +15,7 @@ def test_predict_returns_the_contract_fields(client):
     body = response.get_json()
 
     assert response.status_code == 200
-    assert list(body) == ["churn", "probability", "risk_level", "model_version"]
+    assert list(body) == ["churn", "probability", "risk_level", "segment", "model_version"]
     assert isinstance(body["churn"], bool)
     assert 0 <= body["probability"] <= 1
     assert body["probability"] == round(body["probability"], 2)
@@ -66,9 +30,7 @@ def test_new_customer_with_zero_charges_is_valid(client):
 
 
 def test_customer_without_internet_is_valid(client):
-    no_internet = {name: "No internet service" for name in
-                   ["OnlineSecurity", "OnlineBackup", "DeviceProtection",
-                    "TechSupport", "StreamingTV", "StreamingMovies"]}
+    no_internet = {name: "No internet service" for name in INTERNET_ADDONS}
     response = client.post(
         "/predict",
         json=customer(PhoneService="Yes", MultipleLines="No", InternetService="No", **no_internet),
@@ -134,9 +96,7 @@ def test_no_internet_requires_no_internet_service(client):
 
 
 def test_customer_needs_phone_or_internet(client):
-    no_internet = {name: "No internet service" for name in
-                   ["OnlineSecurity", "OnlineBackup", "DeviceProtection",
-                    "TechSupport", "StreamingTV", "StreamingMovies"]}
+    no_internet = {name: "No internet service" for name in INTERNET_ADDONS}
     # Sin teléfono (como el cliente de ejemplo) y además sin internet: coherente campo a campo,
     # pero ese tipo de cliente no existe en los datos
     response = client.post("/predict", json=customer(InternetService="No", **no_internet))

@@ -7,6 +7,8 @@ El contrato con la página web (rutas, JSON de entrada y de salida) está en el
 README, sección "Contratos entre equipos".
 """
 
+import logging
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
@@ -34,11 +36,18 @@ app.json.ensure_ascii = False
 app.json.sort_keys = False
 CORS(app, origins=WEB_ORIGINS)
 
+# Muestra en la terminal qué modelos se cargaron (o si se usa el de prueba).
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+
+# Los modelos se cargan al arrancar y no en la primera petición: así la primera predicción
+# no tarda, y si falta un archivo o no coincide con el contrato, la API no arranca y lo dice.
+model_service.load_models()
+
 
 @app.get("/health")
 def health():
     """Indica si la API está encendida y qué modelo está usando."""
-    # Mientras no llegue el modelo real del equipo de Modelos, la versión es "demo".
+    # Con el modelo de prueba (sin MODEL_PATH), la versión es "demo".
     return jsonify(status="ok", model_version=model_service.model_version())
 
 
