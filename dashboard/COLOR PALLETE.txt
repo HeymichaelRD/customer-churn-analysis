@@ -1,0 +1,11 @@
+COLOR PALLETE>>>>
+
+Main:#0071e3
+Secondary:#b6deff
+Background:#F5F5F7
+Title:#1D1D1F
+Visual BG:#FFFFFF
+--------
+Good:#34C759
+Bad:#FF3B30
+Half:#FF9500
