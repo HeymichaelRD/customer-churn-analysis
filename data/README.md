@@ -16,13 +16,13 @@ Solo `TotalCharges`. En el original venía como texto y tenía 11 valores en bla
 
 El detalle y el porqué de cada decisión están en [`docs/plan-cleaning-eda.md`](../docs/plan-cleaning-eda.md).
 
-## Columnas extra de `output/telco_churn_dashboard.csv`
+## Columnas derivadas en los archivos de salida
 
 | Columna | Valores | Para qué |
 |---|---|---|
-| `churn_flag` | `1` si el cliente se fue, `0` si se quedó | Sumar o promediar en Power BI: el promedio es la tasa de churn (26.5%) |
-| `tenure_group` | `0-12 meses`, `13-24 meses`, `25-48 meses`, `49-72 meses` | Agrupar por antigüedad con los mismos rangos que el EDA y la web |
-| `segment` | Pendiente | El segmento de K-Means. Lo agrega el equipo de Modelos uniendo por `customerID` |
+| `churn_flag` | `1` si el cliente se fue, `0` si se quedó | Está en `output/telco_churn_dashboard.csv`. Sumarlo o promediarlo en Power BI para analizar churn; el promedio es la tasa de churn (26.5%). |
+| `tenure_group` | `0-12 meses`, `13-24 meses`, `25-48 meses`, `49-72 meses` | Está en `output/telco_churn_dashboard.csv`; agrupa por antigüedad con los mismos rangos que el EDA y la web. |
+| `churn_probability`, `predicted_churn`, `segment`, `segment_name` | Probabilidad y predicción del modelo; ID de segmento (0–3) y nombre descriptivo | Están en `output/telco_churn_model_output.csv` y en `output/telco_churn_dashboard_with_models.csv`. El equipo de Modelos los genera y los une por `customerID`; Power BI puede usar el archivo enriquecido. |
 
 ## Cómo se regeneran
 
