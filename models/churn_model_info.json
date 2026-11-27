@@ -1,47 +1,55 @@
 {
-  "model": "Random Forest",
-  "estimator_class": "RandomForestClassifier",
-  "variant": "Servicios agrupados en dos conteos",
-  "feature_engineering_module": "src.modeling.feature_engineering.build_model_features",
+  "model": "Regresión logística",
+  "estimator_class": "LogisticRegression",
+  "variant": "Servicios agrupados; sin PhoneService, MultipleLines ni TotalCharges",
+  "derived_features": {
+    "SecuritySupportCount": [
+      "OnlineSecurity",
+      "OnlineBackup",
+      "DeviceProtection",
+      "TechSupport"
+    ],
+    "StreamingServicesCount": [
+      "StreamingTV",
+      "StreamingMovies"
+    ]
+  },
   "engineered_features": [
     "gender",
     "SeniorCitizen",
     "Partner",
     "Dependents",
     "tenure",
-    "PhoneService",
-    "MultipleLines",
     "InternetService",
     "Contract",
     "PaperlessBilling",
     "PaymentMethod",
     "MonthlyCharges",
-    "TotalCharges",
     "SecuritySupportCount",
     "StreamingServicesCount"
   ],
-  "selection_reason": "F1 medio casi empatado en cinco divisiones; Random Forest tuvo recall medio ligeramente mayor.",
+  "selection_reason": "Regresión Logística logró mayor F1 medio que Random Forest por más de 0.005 en cinco divisiones, tras la reducción a 12 variables.",
   "repeated_holdout_mean": {
-    "f1_yes": 0.628954769178734,
-    "recall_yes": 0.7641711229946524
+    "f1_yes": 0.6325768362914381,
+    "recall_yes": 0.7390374331550802
   },
   "test_metrics": {
-    "precision_yes": 0.5081669691470054,
-    "recall_yes": 0.7486631016042781,
-    "f1_yes": 0.6054054054054054
+    "precision_yes": 0.5169172932330827,
+    "recall_yes": 0.7352941176470589,
+    "f1_yes": 0.6070640176600441
   },
   "test_confusion_matrix_labels_0_1": [
     [
-      764,
-      271
+      778,
+      257
     ],
     [
-      94,
-      280
+      99,
+      275
     ]
   ],
-  "artifact": "models/telco_churn_random_forest.joblib",
-  "threshold": 0.46,
+  "artifact": "models/telco_churn_logistic.joblib",
+  "threshold": 0.325,
   "positive_class": "Yes",
   "input_columns": [
     "gender",
@@ -49,19 +57,12 @@
     "Partner",
     "Dependents",
     "tenure",
-    "PhoneService",
-    "MultipleLines",
     "InternetService",
-    "OnlineSecurity",
-    "OnlineBackup",
-    "DeviceProtection",
-    "TechSupport",
-    "StreamingTV",
-    "StreamingMovies",
     "Contract",
     "PaperlessBilling",
     "PaymentMethod",
     "MonthlyCharges",
-    "TotalCharges"
+    "SecuritySupportCount",
+    "StreamingServicesCount"
   ]
 }

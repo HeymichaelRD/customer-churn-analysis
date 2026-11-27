@@ -27,6 +27,8 @@ from src.modeling.feature_engineering import build_model_features
 DATA_PATH = ROOT / "data" / "processed" / "telco_churn_clean.csv"
 OUTPUT_PATH = ROOT / "data" / "output" / "final_classifier_repeated_holdout.csv"
 FINAL_HOLDOUT_PATH = ROOT / "data" / "output" / "final_classifier_holdout.json"
+INPUT_COLUMNS_TO_DROP = ["PhoneService", "MultipleLines", "TotalCharges"]
+MODEL_VARIANT = "Servicios agrupados; sin PhoneService, MultipleLines ni TotalCharges"
 RANDOM_STATES = [42, 43, 44, 45, 46]
 FINAL_HOLDOUT_STATE = 47
 THRESHOLDS = np.linspace(0.05, 0.80, 151)
@@ -79,7 +81,7 @@ def classifiers() -> dict:
 
 def main() -> None:
     data = pd.read_csv(DATA_PATH)
-    X = data.drop(columns=["customerID", "Churn"])
+    X = data.drop(columns=["customerID", "Churn", *INPUT_COLUMNS_TO_DROP])
     y = (data["Churn"] == "Yes").astype(int)
     rows = []
 
@@ -192,15 +194,15 @@ def main() -> None:
     matrix = confusion_matrix(y_test, predictions, labels=[0, 1])
     final_report = {
         "model": selected_model,
-        "variant": "Servicios agrupados en dos conteos",
+        "variant": MODEL_VARIANT,
         "threshold": selected_threshold,
-        "threshold_source": "Median of OOF-tuned thresholds in the five model-selection splits.",
+        "threshold_source": "Mediana de los umbrales ajustados con probabilidades OOF en cinco divisiones de selección.",
         "random_state": FINAL_HOLDOUT_STATE,
         "precision_yes": precision_score(y_test, predictions, zero_division=0),
         "recall_yes": recall_score(y_test, predictions, zero_division=0),
         "f1_yes": f1_score(y_test, predictions, zero_division=0),
         "confusion_matrix_labels_0_1": matrix.tolist(),
-        "note": "This final split was not used to select the classifier or threshold.",
+        "note": "Esta partición final no se usó para elegir el clasificador ni ajustar el umbral.",
     }
     FINAL_HOLDOUT_PATH.write_text(json.dumps(final_report, indent=2) + "\n")
     print("\nModelo seleccionado por F1 medio y recall en caso de empate cercano:")
