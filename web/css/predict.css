@@ -314,6 +314,38 @@
   letter-spacing: 0;
 }
 
+/* Segmento K-Means del cliente */
+.segment {
+  display: grid;
+  gap: 4px;
+}
+
+.segment[hidden] {
+  display: none;
+}
+
+.segment-label {
+  font-size: 13px;
+  color: var(--fg-2);
+}
+
+.segment-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.segment-desc {
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.segment-note {
+  font-size: 12px;
+  color: var(--fg-3);
+}
+
 .truth {
   display: flex;
   align-items: center;

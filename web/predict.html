@@ -112,6 +112,14 @@
                 <dd id="r-year">—</dd>
               </div>
             </dl>
+            <!-- Segmento K-Means que devuelve POST /predict. Se oculta si la API no lo envía. -->
+            <div class="segment" id="r-segment" hidden>
+              <hr />
+              <span class="segment-label">Segmento del cliente</span>
+              <b class="segment-name" id="r-segment-name"></b>
+              <p class="segment-desc" id="r-segment-desc"></p>
+              <p class="segment-note">Grupo de clientes parecidos en antigüedad, cargo mensual, tipo de contrato y tipo de internet.</p>
+            </div>
             <hr />
             <!-- Fase 2 (js/predict.js): en el prototipo son <div class="truth"> y <ol class="recs">. -->
             <div class="placeholder placeholder-small">

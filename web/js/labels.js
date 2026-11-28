@@ -20,8 +20,11 @@ const YES_NO = [
 const INTERNET_ADDON = [...YES_NO, { value: "No internet service", label: "Sin servicio de internet" }];
 
 /**
- * Los 19 campos que recibe POST /predict.
- * - type "choice": se elige una opción; `value` es lo que se envía a la API.
+ * Los campos del formulario, con los valores del dataset.
+ * La API no recibe los seis servicios de internet uno por uno: recibe cuántos tiene
+ * el cliente (SecuritySupportCount y StreamingServicesCount). Esos conteos los
+ * calcula predict.js antes de enviar; ver el contrato v3 en el README.
+ * - type "choice": se elige una opción; `value` es el valor del dataset.
  * - type "integer" / "number": se escribe un número; `min` es el mínimo permitido.
  * - `hint` (opcional): texto corto que va debajo del nombre del campo.
  */
@@ -52,12 +55,6 @@ export const FIELDS = {
     min: 0,
     unit: "meses",
     hint: "Meses que lleva como cliente.",
-  },
-  PhoneService: { label: "Servicio telefónico", type: "choice", options: YES_NO },
-  MultipleLines: {
-    label: "Líneas múltiples",
-    type: "choice",
-    options: [...YES_NO, { value: "No phone service", label: "Sin servicio telefónico" }],
   },
   InternetService: {
     label: "Internet",
@@ -101,13 +98,6 @@ export const FIELDS = {
     unit: "US$",
     hint: "Lo que paga cada mes.",
   },
-  TotalCharges: {
-    label: "Cargo total",
-    type: "number",
-    min: 0,
-    unit: "US$",
-    hint: "Todo lo facturado desde que es cliente.",
-  },
 };
 
 /** Orden y grupos de los campos en el formulario. */
@@ -121,8 +111,6 @@ export const FIELD_GROUPS = [
     id: "services",
     label: "Servicios contratados",
     fields: [
-      "PhoneService",
-      "MultipleLines",
       "InternetService",
       "OnlineSecurity",
       "OnlineBackup",
@@ -135,7 +123,7 @@ export const FIELD_GROUPS = [
   {
     id: "account",
     label: "Cuenta y facturación",
-    fields: ["tenure", "Contract", "PaperlessBilling", "PaymentMethod", "MonthlyCharges", "TotalCharges"],
+    fields: ["tenure", "Contract", "PaperlessBilling", "PaymentMethod", "MonthlyCharges"],
   },
 ];
 
