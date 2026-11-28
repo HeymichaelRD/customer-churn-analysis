@@ -12,6 +12,8 @@ Modelo de churn:
 Segmentación (K-Means):
 - Usa SEGMENTS_MODEL_PATH y SEGMENTS_INFO_PATH (por defecto, los archivos de models/).
   Si el modelo no existe, el segmento sale como null (o la API no arranca, con REQUIRE_MODEL=1).
+- Al K-Means solo se le pasan las columnas de "columns" en segments_info.json
+  (tenure, MonthlyCharges, Contract e InternetService): son las únicas que usa.
 
 Los modelos se cargan una sola vez (al arrancar la API, ver app.py) y se reutilizan.
 """
@@ -19,7 +21,6 @@ Los modelos se cargan una sola vez (al arrancar la API, ver app.py) y se reutili
 import json
 import logging
 import os
-import sys
 import threading
 from pathlib import Path
 
@@ -38,12 +39,6 @@ ROOT = Path(__file__).resolve().parents[2]
 RAW_DATA = ROOT / "data" / "raw" / "WA_Fn-UseC_-Telco-Customer-Churn.csv"
 DEMO_VERSION = "demo"
 
-# El modelo de churn guarda una referencia a src.modeling.feature_engineering: joblib necesita
-# importar ese módulo al cargarlo. Con "flask run" o pytest, la raíz del repo no está en el path
-# de Python (solo src/api), así que se agrega aquí.
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 DEFAULT_MODEL_INFO = "models/churn_model_info.json"
 DEFAULT_SEGMENTS_MODEL = "models/telco_customer_segments.joblib"
 DEFAULT_SEGMENTS_INFO = "models/segments_info.json"
@@ -54,8 +49,14 @@ DEMO_THRESHOLD = 0.50
 MEDIUM_FROM = 0.30
 HIGH_FROM = 0.60
 
-NUMERIC = ["tenure", "MonthlyCharges", "TotalCharges"]
+NUMERIC = ["tenure", "MonthlyCharges", "SecuritySupportCount", "StreamingServicesCount"]
 CATEGORICAL = [name for name in FIELD_NAMES if name not in NUMERIC]
+
+# Servicios del dataset que suma cada conteo (igual que la página web antes de enviar).
+COUNTED_SERVICES = {
+    "SecuritySupportCount": ["OnlineSecurity", "OnlineBackup", "DeviceProtection", "TechSupport"],
+    "StreamingServicesCount": ["StreamingTV", "StreamingMovies"],
+}
 
 
 class ModelError(Exception):
@@ -89,10 +90,7 @@ def _load_joblib(path):
     try:
         return joblib.load(path)
     except ImportError as error:
-        raise ModelError(
-            f"No se pudo cargar {path.name}: falta el módulo {error.name}. "
-            "El modelo de churn necesita src/modeling/feature_engineering.py"
-        ) from error
+        raise ModelError(f"No se pudo cargar {path.name}: falta el módulo {error.name}") from error
 
 
 def _check_columns(model, path):
@@ -109,11 +107,16 @@ def _check_columns(model, path):
 # --- Modelo de churn -------------------------------------------------------
 
 
+def add_service_counts(df):
+    """Agrega a una tabla del dataset los dos conteos del contrato ("Yes" cuenta 1)."""
+    for name, services in COUNTED_SERVICES.items():
+        df[name] = (df[services] == "Yes").sum(axis=1)
+    return df
+
+
 def _train_demo_model():
-    # Modelo de prueba: regresión logística sobre las columnas originales del dataset.
-    df = pd.read_csv(RAW_DATA)
-    # TotalCharges viene como texto con 11 blancos (clientes con tenure 0): se dejan en 0.
-    df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce").fillna(0.0)
+    # Modelo de prueba: regresión logística con los mismos 12 campos del contrato.
+    df = add_service_counts(pd.read_csv(RAW_DATA))
     X, y = df[FIELD_NAMES], (df["Churn"] == "Yes").astype(int)
 
     preprocess = ColumnTransformer(
@@ -126,7 +129,7 @@ def _train_demo_model():
 
 
 def _read_threshold(info_path):
-    """Umbral de churn_model_info.json. Revisa que el modelo use los 19 campos del contrato."""
+    """Umbral de churn_model_info.json. Revisa que el modelo use los 12 campos del contrato."""
     info = _read_json(info_path, "la información del modelo de churn")
 
     threshold = info.get("threshold")
@@ -169,18 +172,36 @@ def _n_clusters(model):
     return getattr(estimator, "n_clusters", None)
 
 
+def _segment_columns(info, model, path):
+    """Columnas que usa el K-Means: "columns" de segments_info.json.
+
+    Deben ser campos del contrato (si no, la API no las recibe) y columnas con las que se
+    entrenó el modelo.
+    """
+    columns = info.get("columns")
+    if not isinstance(columns, list) or not columns:
+        raise ModelError('segments_info.json debe tener "columns": las columnas que usa el K-Means')
+    missing = [c for c in columns if c not in FIELD_NAMES]
+    if missing:
+        raise ModelError(f"El K-Means usa columnas que no están en el contrato de la API: {missing}")
+    trained = getattr(model, "feature_names_in_", None)
+    if trained is not None and not set(columns) <= set(trained):
+        raise ModelError(f"El modelo {path.name} no se entrenó con las columnas {columns}")
+    return list(columns)
+
+
 def _load_segments():
-    """Devuelve (modelo, {id: segmento}) o (None, {}) si no hay modelo de segmentación."""
+    """Devuelve (modelo, {id: segmento}, columnas) o (None, {}, []) si no hay modelo de segmentación."""
     path = _env_path("SEGMENTS_MODEL_PATH", DEFAULT_SEGMENTS_MODEL)
     if not path.exists():
         if _env_flag("REQUIRE_MODEL"):
             raise ModelError(f"No se encontró el modelo de segmentación: {path}")
         log.warning("No se encontró el modelo de segmentación (%s): el segmento será null", path)
-        return None, {}
+        return None, {}, []
 
     model = _load_joblib(path)
-    _check_columns(model, path)
     info = _read_json(_env_path("SEGMENTS_INFO_PATH", DEFAULT_SEGMENTS_INFO), "la información de los segmentos")
+    columns = _segment_columns(info, model, path)
     segments = {
         int(s["id"]): {"id": int(s["id"]), "name": s["name"], "description": s.get("description", "")}
         for s in info.get("segments", [])
@@ -195,8 +216,8 @@ def _load_segments():
             f"segments_info.json no coincide con el modelo: el modelo tiene {k} segmentos "
             f"(IDs 0 a {k - 1}) y el JSON trae los IDs {sorted(segments)}"
         )
-    log.info("Modelo de segmentación cargado: %s (%d segmentos)", path, len(segments))
-    return model, segments
+    log.info("Modelo de segmentación cargado: %s (%d segmentos, columnas %s)", path, len(segments), columns)
+    return model, segments, columns
 
 
 # --- Carga única ----------------------------------------------------------
@@ -214,13 +235,14 @@ def load_models():
         with _lock:
             if _loaded is None:
                 model, version, threshold = _load_churn_model()
-                segments_model, segments = _load_segments()
+                segments_model, segments, segment_columns = _load_segments()
                 _loaded = {
                     "model": model,
                     "version": version,
                     "threshold": threshold,
                     "segments_model": segments_model,
                     "segments": segments,
+                    "segment_columns": segment_columns,
                 }
     return _loaded
 
@@ -252,7 +274,7 @@ def predict_many(customers):
     rows = pd.DataFrame(customers, columns=FIELD_NAMES)
     probabilities = state["model"].predict_proba(rows)[:, 1]
     if state["segments_model"] is not None:
-        segment_ids = state["segments_model"].predict(rows)
+        segment_ids = state["segments_model"].predict(rows[state["segment_columns"]])
     else:
         segment_ids = [None] * len(rows)
 

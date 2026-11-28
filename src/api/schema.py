@@ -1,8 +1,15 @@
 """Validación de los datos de un cliente que llegan a POST /predict.
 
 Aplica el contrato API → Web del README ("Contratos entre equipos"):
-los 19 campos del dataset, con sus nombres y valores originales en inglés,
-más las reglas de coherencia entre campos.
+los 12 campos que usa el modelo de churn (models/churn_model_info.json,
+"input_columns"), con sus nombres y valores originales en inglés, más las
+reglas de coherencia entre campos.
+
+Dos de los campos no están en el dataset: los calcula la página web antes
+de enviar el cliente (ver src/modeling/README_modeling.md):
+- SecuritySupportCount: cuántos "Yes" hay entre OnlineSecurity, OnlineBackup,
+  DeviceProtection y TechSupport (0 a 4).
+- StreamingServicesCount: cuántos "Yes" hay entre StreamingTV y StreamingMovies (0 a 2).
 
 Si algo no cumple, se lanza ValidationError con un mensaje en español y el
 nombre del campo, para que la página web pueda marcarlo en el formulario.
@@ -11,30 +18,22 @@ nombre del campo, para que la página web pueda marcarlo en el formulario.
 import math
 
 YES_NO = ["Yes", "No"]
-INTERNET_ADDON = ["Yes", "No", "No internet service"]
-INTERNET_ADDONS = [
-    "OnlineSecurity",
-    "OnlineBackup",
-    "DeviceProtection",
-    "TechSupport",
-    "StreamingTV",
-    "StreamingMovies",
-]
 
-# Los 19 campos, en el orden del dataset.
+# Los conteos de servicios: sin internet, no hay ninguno.
+SERVICE_COUNTS = ["SecuritySupportCount", "StreamingServicesCount"]
+
+# Los 12 campos, en el orden de "input_columns" de churn_model_info.json.
 # - "choice": solo se acepta uno de los valores de la lista.
-# - "integer" / "number": número; "min" es el mínimo permitido y
-#   "exclusive_min" indica que el mínimo no está incluido (mayor que).
+# - "integer" / "number": número; "min" es el mínimo permitido,
+#   "exclusive_min" indica que el mínimo no está incluido (mayor que) y
+#   "max" (opcional) es el máximo permitido.
 FIELD_SPECS = {
     "gender": {"type": "choice", "values": ["Female", "Male"]},
     "SeniorCitizen": {"type": "choice", "values": [0, 1]},
     "Partner": {"type": "choice", "values": YES_NO},
     "Dependents": {"type": "choice", "values": YES_NO},
     "tenure": {"type": "integer", "min": 0},
-    "PhoneService": {"type": "choice", "values": YES_NO},
-    "MultipleLines": {"type": "choice", "values": ["Yes", "No", "No phone service"]},
     "InternetService": {"type": "choice", "values": ["DSL", "Fiber optic", "No"]},
-    **{name: {"type": "choice", "values": INTERNET_ADDON} for name in INTERNET_ADDONS},
     "Contract": {"type": "choice", "values": ["Month-to-month", "One year", "Two year"]},
     "PaperlessBilling": {"type": "choice", "values": YES_NO},
     "PaymentMethod": {
@@ -47,7 +46,8 @@ FIELD_SPECS = {
         ],
     },
     "MonthlyCharges": {"type": "number", "min": 0, "exclusive_min": True},
-    "TotalCharges": {"type": "number", "min": 0},
+    "SecuritySupportCount": {"type": "integer", "min": 0, "max": 4},
+    "StreamingServicesCount": {"type": "integer", "min": 0, "max": 2},
 }
 
 FIELD_NAMES = list(FIELD_SPECS)
@@ -99,39 +99,22 @@ def _check_field(name, value):
         raise ValidationError(f"El campo {name} debe ser mayor que {minimum}", name)
     if value < minimum:
         raise ValidationError(f"El campo {name} debe ser {minimum} o más", name)
+    if "max" in spec and value > spec["max"]:
+        raise ValidationError(f"El campo {name} debe ser {spec['max']} o menos", name)
     return value
 
 
 def _check_coherence(customer):
-    # Todo cliente tiene al menos teléfono o internet: en el dataset no hay ninguno sin los dos
-    # (0 de 7,043), así que el modelo nunca vio ese caso.
-    if customer["PhoneService"] == "No" and customer["InternetService"] == "No":
-        raise ValidationError(
-            "El cliente debe tener al menos teléfono o internet", "PhoneService"
-        )
-    # Reglas del contrato: si no hay teléfono o internet, los servicios que dependen de ellos
-    # deben decir "No phone service" o "No internet service".
-    if customer["PhoneService"] == "No" and customer["MultipleLines"] != "No phone service":
-        raise ValidationError(
-            'Si PhoneService es "No", MultipleLines debe ser "No phone service"', "MultipleLines"
-        )
-    if customer["PhoneService"] == "Yes" and customer["MultipleLines"] == "No phone service":
-        raise ValidationError(
-            'Si PhoneService es "Yes", MultipleLines no puede ser "No phone service"', "MultipleLines"
-        )
-    for addon in INTERNET_ADDONS:
-        if customer["InternetService"] == "No" and customer[addon] != "No internet service":
-            raise ValidationError(
-                f'Si InternetService es "No", {addon} debe ser "No internet service"', addon
-            )
-        if customer["InternetService"] != "No" and customer[addon] == "No internet service":
-            raise ValidationError(
-                f'Si el cliente tiene internet, {addon} no puede ser "No internet service"', addon
-            )
+    # Los servicios que cuentan SecuritySupportCount y StreamingServicesCount son de internet:
+    # sin internet, los dos conteos son 0 (en el dataset dicen "No internet service").
+    if customer["InternetService"] == "No":
+        for name in SERVICE_COUNTS:
+            if customer[name] != 0:
+                raise ValidationError(f'Si InternetService es "No", {name} debe ser 0', name)
 
 
 def validate_customer(payload):
-    """Revisa un cliente y lo devuelve listo para el modelo (los 19 campos, en orden).
+    """Revisa un cliente y lo devuelve listo para el modelo (los 12 campos, en orden).
 
     Lanza ValidationError en el primer problema que encuentra.
     """
