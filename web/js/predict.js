@@ -7,6 +7,10 @@
 //  Sale del prototipo del diseño. La diferencia: en el prototipo el modelo
 //  corría en el navegador; aquí la probabilidad siempre la calcula la API.
 //
+//  El formulario tiene los seis servicios de internet, pero la API recibe
+//  cuántos tiene el cliente: antes de cada envío se calculan
+//  SecuritySupportCount y StreamingServicesCount (ver toApiPayload).
+//
 //  Fase 2 (cuando existan en la API): clientes de ejemplo (GET /samples),
 //  si el modelo acertó y las recomendaciones (POST /recommendations).
 // =====================================================================
@@ -17,7 +21,7 @@ import { $, h, icon, makeSeg, mountRing, prefersReducedMotion, setBadge } from "
 
 // --- Datos fijos -------------------------------------------------------
 
-// Los 19 campos que se envían a la API, en el orden del formulario.
+// Los campos del formulario, en su orden.
 const CUSTOMER_FIELDS = FIELD_GROUPS.flatMap((group) => group.fields);
 
 // Servicios que solo existen si el cliente tiene internet.
@@ -30,14 +34,35 @@ const INTERNET_ADDONS = [
   "StreamingMovies",
 ];
 
+// Los 12 campos que recibe POST /predict, en el orden de "input_columns"
+// (models/churn_model_info.json). Los dos últimos se calculan con SERVICE_COUNTS.
+const API_FIELDS = [
+  "gender",
+  "SeniorCitizen",
+  "Partner",
+  "Dependents",
+  "tenure",
+  "InternetService",
+  "Contract",
+  "PaperlessBilling",
+  "PaymentMethod",
+  "MonthlyCharges",
+  "SecuritySupportCount",
+  "StreamingServicesCount",
+];
+
+// Cada conteo es cuántos de estos servicios dicen "Yes" ("No" y "No internet service" cuentan 0).
+const SERVICE_COUNTS = {
+  SecuritySupportCount: ["OnlineSecurity", "OnlineBackup", "DeviceProtection", "TechSupport"],
+  StreamingServicesCount: ["StreamingTV", "StreamingMovies"],
+};
+
 // Qué control usa cada campo en el formulario.
 const CONTROL_TYPES = {
   gender: "segmented",
   SeniorCitizen: "switch",
   Partner: "switch",
   Dependents: "switch",
-  PhoneService: "switch",
-  MultipleLines: "switch",
   InternetService: "segmented",
   OnlineSecurity: "switch",
   OnlineBackup: "switch",
@@ -50,7 +75,6 @@ const CONTROL_TYPES = {
   PaperlessBilling: "switch",
   PaymentMethod: "select",
   MonthlyCharges: "slider",
-  TotalCharges: "total",
 };
 
 // Mínimo, máximo y paso de los deslizadores: los rangos del dataset.
@@ -70,8 +94,6 @@ const EXAMPLE = {
     SeniorCitizen: 0,
     Partner: "No",
     Dependents: "No",
-    PhoneService: "Yes",
-    MultipleLines: "Yes",
     InternetService: "Fiber optic",
     OnlineSecurity: "No",
     OnlineBackup: "No",
@@ -84,22 +106,28 @@ const EXAMPLE = {
     PaperlessBilling: "Yes",
     PaymentMethod: "Electronic check",
     MonthlyCharges: 99.65,
-    TotalCharges: 820.5,
   },
 };
-
-// La API rechaza un cliente sin teléfono y sin internet (en el dataset no hay
-// ninguno así). Por eso el formulario no deja quitar el último de los dos.
-const NEEDS_A_SERVICE = "Necesita teléfono o internet";
 
 /** Redondea a 2 decimales: round2(3.14159) → 3.14 */
 const round2 = (value) => Math.round(value * 100) / 100;
 
+/** Lo que se envía a POST /predict: los 12 campos del contrato, con los dos conteos calculados. */
+function toApiPayload(data) {
+  const counts = Object.fromEntries(
+    Object.entries(SERVICE_COUNTS).map(([name, services]) => [
+      name,
+      services.filter((service) => data[service] === "Yes").length,
+    ]),
+  );
+  const values = { ...data, ...counts };
+  return Object.fromEntries(API_FIELDS.map((field) => [field, values[field]]));
+}
+
 // --- Estado de la página -----------------------------------------------
 
-let customer = {}; // los 19 datos que se envían a la API
+let customer = {}; // los datos del formulario (los seis servicios, uno por uno)
 let baseline = null; // el cliente tal como se cargó y su probabilidad, para el "antes → ahora"
-let totalIsAuto = false; // true: el cargo total se calcula solo (antigüedad × cargo mensual)
 let fieldError = null; // { field, message }: el dato que rechazó la API, hasta la próxima respuesta buena
 const controls = {}; // el control de cada campo, por ejemplo controls.tenure.set(12)
 
@@ -127,14 +155,12 @@ function buildSwitch(field, def, id, note) {
     row,
     inputs: [input],
     set(value) {
-      // "Sin servicio telefónico" o "Sin servicio de internet": apagado y bloqueado.
-      const special = value === "No phone service" || value === "No internet service";
-      // Sin internet, el teléfono no se puede quitar.
-      const locked = field === "PhoneService" && customer.InternetService === "No";
+      // "Sin servicio de internet": apagado y bloqueado.
+      const special = value === "No internet service";
       input.checked = value === on;
-      input.disabled = special || locked;
+      input.disabled = special;
       row.classList.toggle("is-off", special);
-      note.textContent = special ? valueLabel(field, value) : locked ? NEEDS_A_SERVICE : (def.hint ?? "");
+      note.textContent = special ? valueLabel(field, value) : (def.hint ?? "");
     },
   };
   return row;
@@ -150,8 +176,6 @@ function buildSegmented(field, def, id, note) {
     labelledBy: labelId,
     onChange: (value) => setField(field, value),
   });
-  // Sin teléfono, la opción "Sin internet" se bloquea.
-  const noInternet = field === "InternetService" ? seg.el.querySelector('input[value="No"]') : null;
   const row = h(
     "div",
     { class: "row row-seg", "data-field": field },
@@ -164,9 +188,7 @@ function buildSegmented(field, def, id, note) {
     inputs: [...seg.el.querySelectorAll("input")],
     set(value) {
       seg.set(value);
-      const locked = noInternet !== null && customer.PhoneService === "No";
-      if (noInternet) noInternet.disabled = locked;
-      note.textContent = locked ? NEEDS_A_SERVICE : (def.hint ?? "");
+      note.textContent = def.hint ?? "";
     },
   };
   return row;
@@ -244,55 +266,11 @@ function buildSlider(field, def, id, note) {
   return row;
 }
 
-/** Cargo total: un número, con un botón para calcularlo a partir de los otros datos. */
-function buildTotal(field, def, id, note) {
-  const number = h("input", {
-    type: "number",
-    class: "field-num field-num-wide",
-    id,
-    min: def.min,
-    step: 0.01,
-    inputmode: "decimal",
-  });
-  const calculate = h("button", { type: "button", class: "text-btn", text: "Calcular" });
-  number.addEventListener("input", () => {
-    const value = Number(number.value);
-    if (number.value !== "" && Number.isFinite(value) && value >= def.min) {
-      totalIsAuto = false;
-      setField(field, round2(value));
-    }
-  });
-  number.addEventListener("blur", () => controls[field].set(customer[field]));
-  calculate.addEventListener("click", () => {
-    totalIsAuto = true;
-    setField(field, round2(customer.tenure * customer.MonthlyCharges));
-  });
-
-  const row = h(
-    "div",
-    { class: "row", "data-field": field },
-    rowLabel("label", { for: id }, def, note),
-    h("span", { class: "row-tool" }, calculate, h("span", { class: "num-wrap" }, def.unit, number)),
-  );
-
-  controls[field] = {
-    row,
-    inputs: [number],
-    set(value) {
-      if (document.activeElement !== number) number.value = value.toFixed(2);
-      note.textContent = totalIsAuto ? "Antigüedad × cargo mensual (aproximado)." : def.hint;
-      calculate.hidden = totalIsAuto;
-    },
-  };
-  return row;
-}
-
 const BUILDERS = {
   switch: buildSwitch,
   segmented: buildSegmented,
   select: buildSelect,
   slider: buildSlider,
-  total: buildTotal,
 };
 
 function buildRow(field) {
@@ -325,22 +303,12 @@ function writeAll() {
 function setField(field, value) {
   customer[field] = value;
 
-  // Sin teléfono no hay líneas múltiples. Al volver a tenerlo, empiezan en "No".
-  if (field === "PhoneService") {
-    if (value === "No") customer.MultipleLines = "No phone service";
-    else if (customer.MultipleLines === "No phone service") customer.MultipleLines = "No";
-  }
-
   // Sin internet no hay servicios de internet. Al volver a tenerlo, empiezan en "No".
   if (field === "InternetService") {
     for (const addon of INTERNET_ADDONS) {
       if (value === "No") customer[addon] = "No internet service";
       else if (customer[addon] === "No internet service") customer[addon] = "No";
     }
-  }
-
-  if (totalIsAuto && (field === "tenure" || field === "MonthlyCharges")) {
-    customer.TotalCharges = round2(customer.tenure * customer.MonthlyCharges);
   }
 
   writeAll();
@@ -351,7 +319,6 @@ function setField(field, value) {
 function loadCustomer(data, info) {
   customer = Object.fromEntries(CUSTOMER_FIELDS.map((field) => [field, data[field]]));
   baseline = { customer: { ...customer }, probability: null, info };
-  totalIsAuto = false;
   writeAll();
   updateResult();
 }
@@ -375,19 +342,20 @@ async function updateResult() {
   latest?.abort();
   const request = new AbortController();
   latest = request;
-  const sent = { ...customer };
+  const asked = { ...customer }; // el formulario en este momento
+  const sent = toApiPayload(asked); // lo que recibe la API
   try {
     const answer = await predict(sent, { signal: request.signal });
-    if (request === latest) showResult(sent, answer);
+    if (request === latest) showResult(asked, sent, answer);
   } catch (error) {
     // Si ya hay una petición más nueva, esta respuesta no importa.
     if (request === latest) showError(sent, error);
   }
 }
 
-function showResult(sent, answer) {
+function showResult(asked, sent, answer) {
   const { churn, probability, risk_level: level } = answer;
-  const unchanged = isUnchanged(sent);
+  const unchanged = isUnchanged(asked);
   if (unchanged && baseline.probability === null) baseline.probability = probability;
 
   clearErrors();
