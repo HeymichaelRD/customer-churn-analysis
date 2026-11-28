@@ -13,36 +13,21 @@ for _name in ["MODEL_PATH", "MODEL_INFO_PATH", "SEGMENTS_MODEL_PATH", "SEGMENTS_
 from app import app  # noqa: E402  (va después de limpiar las variables)
 
 # El primer cliente del dataset: es el ejemplo del contrato en el README.
+# De sus servicios de internet solo tiene OnlineBackup: SecuritySupportCount 1, StreamingServicesCount 0.
 VALID_CUSTOMER = {
     "gender": "Female",
     "SeniorCitizen": 0,
     "Partner": "Yes",
     "Dependents": "No",
     "tenure": 1,
-    "PhoneService": "No",
-    "MultipleLines": "No phone service",
     "InternetService": "DSL",
-    "OnlineSecurity": "No",
-    "OnlineBackup": "Yes",
-    "DeviceProtection": "No",
-    "TechSupport": "No",
-    "StreamingTV": "No",
-    "StreamingMovies": "No",
     "Contract": "Month-to-month",
     "PaperlessBilling": "Yes",
     "PaymentMethod": "Electronic check",
     "MonthlyCharges": 29.85,
-    "TotalCharges": 29.85,
+    "SecuritySupportCount": 1,
+    "StreamingServicesCount": 0,
 }
-
-INTERNET_ADDONS = [
-    "OnlineSecurity",
-    "OnlineBackup",
-    "DeviceProtection",
-    "TechSupport",
-    "StreamingTV",
-    "StreamingMovies",
-]
 
 
 def customer(**changes):

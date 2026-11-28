@@ -26,9 +26,10 @@ ENGINEERED_FEATURES = ["SecuritySupportCount", "StreamingServicesCount"]
 def build_model_features(data: pd.DataFrame) -> pd.DataFrame:
     """Sustituye seis indicadores de servicios de internet por dos conteos.
 
-    Recibe las columnas originales de entrada y devuelve la tabla reducida
-    que usa el clasificador. Un servicio cuenta como activo solo si su valor
-    es ``Yes``; tanto ``No`` como ``No internet service`` cuentan como cero.
+    Recibe las columnas de entrada que conserva el contrato del modelo y
+    devuelve la tabla reducida que usa el clasificador. Un servicio cuenta
+    como activo solo si su valor es ``Yes``; tanto ``No`` como
+    ``No internet service`` cuentan como cero.
     Se conserva ``InternetService`` para distinguir a quienes no tienen
     internet de quienes sí tienen, pero no contrataron servicios adicionales.
     """

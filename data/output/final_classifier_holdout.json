@@ -1,21 +1,21 @@
 {
-  "model": "Random Forest",
-  "variant": "Servicios agrupados en dos conteos",
-  "threshold": 0.46,
-  "threshold_source": "Median of OOF-tuned thresholds in the five model-selection splits.",
+  "model": "Regresión logística",
+  "variant": "Servicios agrupados; sin PhoneService, MultipleLines ni TotalCharges",
+  "threshold": 0.325,
+  "threshold_source": "Mediana de los umbrales ajustados con probabilidades OOF en cinco divisiones de selección.",
   "random_state": 47,
-  "precision_yes": 0.5081669691470054,
-  "recall_yes": 0.7486631016042781,
-  "f1_yes": 0.6054054054054054,
+  "precision_yes": 0.5169172932330827,
+  "recall_yes": 0.7352941176470589,
+  "f1_yes": 0.6070640176600441,
   "confusion_matrix_labels_0_1": [
     [
-      764,
-      271
+      778,
+      257
     ],
     [
-      94,
-      280
+      99,
+      275
     ]
   ],
-  "note": "This final split was not used to select the classifier or threshold."
+  "note": "Esta partición final no se usó para elegir el clasificador ni ajustar el umbral."
 }

@@ -350,9 +350,9 @@ Lo que cada equipo **entrega** al siguiente. Con esto definido, todos pueden tra
 |---|---|---|---|
 | Datos limpios | Limpieza y EDA → Modelos | `data/processed/telco_churn_clean.csv` (lo genera `src/cleaning/clean_data.py`) | Listo |
 | Segmentación de clientes | Modelos → API, Power BI | `models/telco_customer_segments.joblib` y `models/segments_info.json` (K-Means, k=4) | Listo; la API ya lo usa |
-| Modelo de churn | Modelos → API | `models/telco_churn_random_forest.joblib` y `models/churn_model_info.json` (umbral `0.460`). Necesita `src/modeling/feature_engineering.py` al cargarse | Listo; la API ya lo usa |
+| Modelo de churn | Modelos → API | `models/telco_churn_logistic.joblib` (regresión logística, 12 campos) y `models/churn_model_info.json` (umbral `0.325`) | Listo; la API ya lo usa |
 | Datos para el dashboard | Limpieza y EDA, Modelos → Power BI | `data/output/telco_churn_dashboard.csv` (lo genera `src/cleaning/clean_data.py`). Modelos agrega la columna `segment` uniendo por `customerID` | Parte de Limpieza y EDA lista; falta el segmento de Modelos |
-| Predicción | API → Web | `GET /health` y `POST /predict` | v2: con el modelo real y el segmento (abajo) |
+| Predicción | API → Web | `GET /health` y `POST /predict` | v3: 12 campos, con la regresión logística y el segmento (abajo) |
 
 <details>
 <summary><b>🧩 Segmentación de clientes (borrador)</b></summary>
@@ -390,50 +390,49 @@ Ejemplo de `models/segments_info.json` (los valores son ilustrativos):
 > [!IMPORTANT]
 > Escalen los datos antes de K-Means (`StandardScaler`). K-Means agrupa por distancias: sin escalar, una columna con números grandes, como `TotalCharges`, decide sola los grupos.
 
-**Por confirmar con el profesor:** si el segmento también entra como **columna del modelo de churn**. Si entra, el `Pipeline` del modelo de churn calcula el segmento por dentro, con el K-Means entrenado **solo con los datos de entrenamiento**. Así la API sigue recibiendo los mismos 19 campos.
+**Por confirmar con el profesor:** si el segmento también entra como **columna del modelo de churn**. Si entra, el `Pipeline` del modelo de churn calcula el segmento por dentro, con el K-Means entrenado **solo con los datos de entrenamiento**. Así la API sigue recibiendo los mismos 12 campos.
 
 </details>
 
 <details>
-<summary><b>📝 Contrato API → Web (v2)</b></summary>
+<summary><b>📝 Contrato API → Web (v3)</b></summary>
 
 **Conexión:** la API corre en `http://localhost:5000` y habla en JSON. Solo acepta llamadas de la página web (`http://localhost:8000` o `http://127.0.0.1:8000`).
 
-**Modelos:** en el `.env`, `MODEL_PATH=models/telco_churn_random_forest.joblib` (ver `.env.example`). El umbral sale de `models/churn_model_info.json` y los nombres de los segmentos, de `models/segments_info.json`. Si `MODEL_PATH` no está definida, la API usa un modelo de prueba y `model_version` es `"demo"`. Con `REQUIRE_MODEL=1`, si falta un modelo la API no arranca.
+**Modelos:** en el `.env`, `MODEL_PATH=models/telco_churn_logistic.joblib` (ver `.env.example`). El umbral sale de `models/churn_model_info.json` y los nombres de los segmentos, de `models/segments_info.json`. Si `MODEL_PATH` no está definida, la API usa un modelo de prueba y `model_version` es `"demo"`. Con `REQUIRE_MODEL=1`, si falta un modelo la API no arranca.
+
+**Cambios desde v2:** la petición pasa de 19 a 12 campos. Ya no se envían `PhoneService`, `MultipleLines`, `TotalCharges` ni los seis servicios de internet por separado; en su lugar van dos conteos que calcula la página. El umbral pasa de `0.46` a `0.325`.
 
 #### `GET /health`: ¿está encendida la API?
 
 ```json
-{ "status": "ok", "model_version": "telco_churn_random_forest" }
+{ "status": "ok", "model_version": "telco_churn_logistic" }
 ```
 
 `model_version` es el nombre del archivo del modelo, o `"demo"` si la API usa el modelo de prueba.
 
 #### `POST /predict`: riesgo de abandono de un cliente
 
-**Petición:** los 19 campos del dataset, con los **mismos nombres y valores** (en inglés y con las mismas mayúsculas). `customerID` no se envía: si llega un campo que no está en esta tabla, la API responde `400`.
+**Petición:** exactamente los 12 campos de `input_columns` en `models/churn_model_info.json`, con los **mismos nombres y valores** del dataset (en inglés y con las mismas mayúsculas). Si llega un campo que no está en esta tabla (por ejemplo `customerID`, `TotalCharges` u `OnlineBackup`), la API responde `400`.
 
 | Campo | Tipo | Valores permitidos |
 |---|---|---|
 | `gender` | texto | `"Female"`, `"Male"` |
 | `SeniorCitizen` | entero | `0` (no), `1` (sí) |
-| `Partner`, `Dependents`, `PhoneService`, `PaperlessBilling` | texto | `"Yes"`, `"No"` |
+| `Partner`, `Dependents`, `PaperlessBilling` | texto | `"Yes"`, `"No"` |
 | `tenure` | entero | `0` o más (meses como cliente) |
-| `MultipleLines` | texto | `"Yes"`, `"No"`, `"No phone service"` |
 | `InternetService` | texto | `"DSL"`, `"Fiber optic"`, `"No"` |
-| `OnlineSecurity`, `OnlineBackup`, `DeviceProtection`, `TechSupport`, `StreamingTV`, `StreamingMovies` | texto | `"Yes"`, `"No"`, `"No internet service"` |
 | `Contract` | texto | `"Month-to-month"`, `"One year"`, `"Two year"` |
 | `PaymentMethod` | texto | `"Electronic check"`, `"Mailed check"`, `"Bank transfer (automatic)"`, `"Credit card (automatic)"` |
 | `MonthlyCharges` | número | mayor que `0` |
-| `TotalCharges` | número | `0` o más (con `tenure` 0, se envía `0`) |
+| `SecuritySupportCount` | entero | de `0` a `4`: cuántos de `OnlineSecurity`, `OnlineBackup`, `DeviceProtection` y `TechSupport` son `"Yes"` |
+| `StreamingServicesCount` | entero | de `0` a `2`: cuántos de `StreamingTV` y `StreamingMovies` son `"Yes"` |
 
-**Reglas de coherencia** (si no se cumplen, la API responde `400`):
+**Los dos conteos los calcula la página** a partir de los seis servicios del formulario. Solo cuenta `"Yes"`: `"No"` y `"No internet service"` cuentan `0`.
 
-- Si `PhoneService` es `"No"`, `MultipleLines` debe ser `"No phone service"`. Si es `"Yes"`, `MultipleLines` no puede ser `"No phone service"`.
-- Si `InternetService` es `"No"`, los 6 servicios de internet deben ser `"No internet service"`. Si tiene internet (`"DSL"` o `"Fiber optic"`), ninguno puede ser `"No internet service"`.
-- El cliente debe tener **al menos** teléfono o internet: `PhoneService` e `InternetService` no pueden ser `"No"` a la vez.
+**Regla de coherencia** (si no se cumple, la API responde `400`): si `InternetService` es `"No"`, los dos conteos deben ser `0`.
 
-Ejemplo (el primer cliente del dataset):
+Ejemplo (el primer cliente del dataset: de sus servicios de internet solo tiene `OnlineBackup`):
 
 ```json
 {
@@ -442,20 +441,13 @@ Ejemplo (el primer cliente del dataset):
   "Partner": "Yes",
   "Dependents": "No",
   "tenure": 1,
-  "PhoneService": "No",
-  "MultipleLines": "No phone service",
   "InternetService": "DSL",
-  "OnlineSecurity": "No",
-  "OnlineBackup": "Yes",
-  "DeviceProtection": "No",
-  "TechSupport": "No",
-  "StreamingTV": "No",
-  "StreamingMovies": "No",
   "Contract": "Month-to-month",
   "PaperlessBilling": "Yes",
   "PaymentMethod": "Electronic check",
   "MonthlyCharges": 29.85,
-  "TotalCharges": 29.85
+  "SecuritySupportCount": 1,
+  "StreamingServicesCount": 0
 }
 ```
 
@@ -467,27 +459,27 @@ Ejemplo (el primer cliente del dataset):
   "probability": 0.63,
   "risk_level": "high",
   "segment": {
-    "id": 1,
-    "name": "Inicio por afianzar",
-    "description": "Antigüedad mediana 8 meses; 75% mes a mes; cargo mensual mediano 25.55; churn 25%."
+    "id": 2,
+    "name": "Fibra en riesgo",
+    "description": "Antigüedad mediana 13 meses; cargo mensual mediano $85.30; 100.0% fibra óptica; 96.0% contrato de mes a mes; churn observado 56.7%."
   },
-  "model_version": "telco_churn_random_forest"
+  "model_version": "telco_churn_logistic"
 }
 ```
 
 | Campo | Significado |
 |---|---|
-| `churn` | `true` si el modelo predice que el cliente **abandona**: `probability` es `0.46` o más (el umbral de `models/churn_model_info.json`; `0.50` con el modelo de prueba) |
+| `churn` | `true` si el modelo predice que el cliente **abandona**: `probability` es `0.325` o más (el umbral de `models/churn_model_info.json`; `0.50` con el modelo de prueba) |
 | `probability` | Probabilidad de abandono, de `0` a `1`, con 2 decimales |
 | `risk_level` | `"low"` (menos de 0.30), `"medium"` (de 0.30 a menos de 0.60) o `"high"` (0.60 o más). Umbrales provisionales |
-| `segment` | Segmento K-Means del cliente: `id` (de `0` a `3`), `name` y `description`, tomados de `models/segments_info.json`. Es `null` si la API no tiene el modelo de segmentación. **No usen el `id` para elegir textos o colores:** puede cambiar si se vuelve a entrenar el modelo; usen `name` |
+| `segment` | Segmento K-Means del cliente: `id` (de `0` a `3`), `name` y `description`, tomados de `models/segments_info.json`. El K-Means usa `tenure`, `MonthlyCharges`, `Contract` e `InternetService` (`"columns"` en ese archivo). Es `null` si la API no tiene el modelo de segmentación. **No usen el `id` para elegir textos o colores:** puede cambiar si se vuelve a entrenar el modelo; usen `name` |
 | `model_version` | `"demo"` o el nombre del archivo del modelo real |
 
 #### Errores
 
 | Código | Cuándo | Respuesta |
 |---|---|---|
-| `400` | Falta o sobra un campo, el tipo o el valor no es válido, o se rompe una regla de coherencia | `{"error": "El campo Contract tiene un valor no permitido", "field": "Contract"}` |
+| `400` | Falta o sobra un campo, el tipo o el valor no es válido, o se rompe la regla de coherencia | `{"error": "El campo Contract tiene un valor no permitido", "field": "Contract"}` |
 | `404` | La ruta no existe | `{"error": "Esa ruta no existe en la API"}` |
 | `405` | La ruta existe, pero no con ese método (por ejemplo, `GET /predict`) | `{"error": "Esa ruta no acepta este método (GET/POST)"}` |
 | `500` | Falla la API o el modelo | `{"error": "Error interno de la API"}` |
@@ -498,12 +490,11 @@ El detalle de cómo valida la API (orden de las revisiones y casos especiales) e
 
 **Acordado con otros equipos:**
 
-1. **Modelos:** el modelo recibe los 19 campos originales; crea por dentro dos conteos de servicios (`src/modeling/feature_engineering.py`).
-2. **Limpieza y EDA:** `TotalCharges` vacío (los 11 clientes con `tenure` 0) se deja en `0`, igual que pide este contrato.
-3. **Modelos:** `churn` es `true` desde `0.46` (`models/churn_model_info.json`).
-4. **Modelos:** `POST /predict` devuelve el segmento del cliente (`segment`, K-Means con k=4).
+1. **Modelos:** el modelo recibe 12 campos; la página calcula los dos conteos de servicios antes de enviar (`src/modeling/README_modeling.md`, "Integración con API").
+2. **Modelos:** `churn` es `true` desde `0.325` (`models/churn_model_info.json`).
+3. **Modelos:** `POST /predict` devuelve el segmento del cliente (`segment`, K-Means con k=4 sobre `tenure`, `MonthlyCharges`, `Contract` e `InternetService`).
 
-**Por confirmar con Modelos:** los niveles de `risk_level` (0.30 y 0.60). Con el umbral en 0.46, un cliente con 0.50 sale con `churn: true` y riesgo `"medium"`.
+**Por confirmar con Modelos:** los niveles de `risk_level` (0.30 y 0.60). Con el umbral en 0.325, un cliente con 0.50 sale con `churn: true` y riesgo `"medium"`.
 
 Las demás rutas de la API (recomendaciones, clientes de ejemplo, hallazgos, segmentos, información de los modelos y predicción por lotes) se documentan aquí cuando se construyan.
 

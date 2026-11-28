@@ -5,13 +5,14 @@ Cada persona tiene sus propios notebooks y nunca edita el de otro (regla 4 de "C
 | Notebook | Autor | Equipo | Qué contiene |
 |---|---|---|---|
 | `02_eda_bryan.ipynb` | Bryan Abreu | Limpieza y EDA | EDA completo: verificación de la data, calidad de datos, churn por variable, segmentos de alto riesgo, impacto en ingresos, hallazgos y notas de criterio |
+| `03_modeling_teudys.ipynb` | Teudys Perez | Modelos | Comparación de clasificadores, reducción de variables, ajuste del umbral, comparación de métodos de segmentación y perfiles de clientes |
 
 > Cuando agregues un notebook, súmalo a esta tabla en el mismo Pull Request.
 
 ## Cómo abrirlos
 
 - **Solo para verlos:** haz clic en el archivo aquí en GitHub. Se muestran con los gráficos, sin instalar nada.
-- **Para correrlos:** ábrelos en VS Code y, en **Select Kernel**, elige el Python de `.venv`. Antes corre `python src/cleaning/clean_data.py`, porque el notebook comprueba que su limpieza es igual a la del script.
+- **Para correrlos:** ábrelos en VS Code y, en **Select Kernel**, elige el Python de `.venv`. Antes de ejecutar `02_eda_bryan.ipynb`, corre `python src/cleaning/clean_data.py`; `03_modeling_teudys.ipynb` usa el CSV limpio de `data/processed/` y requiere los scripts de modelos indicados en [`src/modeling/README_modeling.md`](../src/modeling/README_modeling.md).
 
 ## Hallazgos principales del EDA
 
