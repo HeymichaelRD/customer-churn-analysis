@@ -1,0 +1,2 @@
+step,removed_feature,n_features,features,threshold_oof,precision_oof,recall_oof,f1_oof
+0,,12,"gender, SeniorCitizen, Partner, Dependents, tenure, InternetService, Contract, PaperlessBilling, PaymentMethod, MonthlyCharges, SecuritySupportCount, StreamingServicesCount",0.465,0.5302889095992545,0.7612040133779264,0.6251029936830541
