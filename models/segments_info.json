@@ -1,0 +1,41 @@
+{
+  "algorithm": "KMeans",
+  "k": 4,
+  "columns": [
+    "tenure",
+    "MonthlyCharges",
+    "Contract",
+    "InternetService"
+  ],
+  "random_state": 42,
+  "segments": [
+    {
+      "id": 0,
+      "name": "Conexión consolidada",
+      "description": "Antigüedad mediana 63 meses; cargo mensual mediano $90.65; 59.3% fibra óptica; 49.2% contrato de dos años; churn observado 11.9%.",
+      "customers": 1966,
+      "churn_rate": 0.1185
+    },
+    {
+      "id": 1,
+      "name": "DSL por fidelizar",
+      "description": "Antigüedad mediana 14 meses; cargo mensual mediano $50.95; 100.0% DSL; 74.2% contrato de mes a mes; churn observado 26.5%.",
+      "customers": 1618,
+      "churn_rate": 0.2651
+    },
+    {
+      "id": 2,
+      "name": "Fibra en riesgo",
+      "description": "Antigüedad mediana 13 meses; cargo mensual mediano $85.30; 100.0% fibra óptica; 96.0% contrato de mes a mes; churn observado 56.7%.",
+      "customers": 1931,
+      "churn_rate": 0.5665
+    },
+    {
+      "id": 3,
+      "name": "Telefonía estable",
+      "description": "Antigüedad mediana 25 meses; cargo mensual mediano $20.15; 99.9% sin internet; 41.8% contrato de dos años; churn observado 7.4%.",
+      "customers": 1528,
+      "churn_rate": 0.074
+    }
+  ]
+}

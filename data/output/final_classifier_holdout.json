@@ -1,0 +1,21 @@
+{
+  "model": "Regresión logística",
+  "variant": "Servicios agrupados; sin PhoneService, MultipleLines ni TotalCharges",
+  "threshold": 0.325,
+  "threshold_source": "Mediana de los umbrales ajustados con probabilidades OOF en cinco divisiones de selección.",
+  "random_state": 47,
+  "precision_yes": 0.5169172932330827,
+  "recall_yes": 0.7352941176470589,
+  "f1_yes": 0.6070640176600441,
+  "confusion_matrix_labels_0_1": [
+    [
+      778,
+      257
+    ],
+    [
+      99,
+      275
+    ]
+  ],
+  "note": "Esta partición final no se usó para elegir el clasificador ni ajustar el umbral."
+}

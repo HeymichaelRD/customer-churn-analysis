@@ -1,0 +1,68 @@
+{
+  "model": "Regresión logística",
+  "estimator_class": "LogisticRegression",
+  "variant": "Servicios agrupados; sin PhoneService, MultipleLines ni TotalCharges",
+  "derived_features": {
+    "SecuritySupportCount": [
+      "OnlineSecurity",
+      "OnlineBackup",
+      "DeviceProtection",
+      "TechSupport"
+    ],
+    "StreamingServicesCount": [
+      "StreamingTV",
+      "StreamingMovies"
+    ]
+  },
+  "engineered_features": [
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "tenure",
+    "InternetService",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod",
+    "MonthlyCharges",
+    "SecuritySupportCount",
+    "StreamingServicesCount"
+  ],
+  "selection_reason": "Regresión Logística logró mayor F1 medio que Random Forest por más de 0.005 en cinco divisiones, tras la reducción a 12 variables.",
+  "repeated_holdout_mean": {
+    "f1_yes": 0.6325768362914381,
+    "recall_yes": 0.7390374331550802
+  },
+  "test_metrics": {
+    "precision_yes": 0.5169172932330827,
+    "recall_yes": 0.7352941176470589,
+    "f1_yes": 0.6070640176600441
+  },
+  "test_confusion_matrix_labels_0_1": [
+    [
+      778,
+      257
+    ],
+    [
+      99,
+      275
+    ]
+  ],
+  "artifact": "models/telco_churn_logistic.joblib",
+  "threshold": 0.325,
+  "positive_class": "Yes",
+  "input_columns": [
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "tenure",
+    "InternetService",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod",
+    "MonthlyCharges",
+    "SecuritySupportCount",
+    "StreamingServicesCount"
+  ]
+}

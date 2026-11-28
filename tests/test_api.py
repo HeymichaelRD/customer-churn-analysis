@@ -1,17 +1,5 @@
 """Pruebas de la API de Flask. Ejecutar con: pytest"""
 
-import pytest
-
-from app import app
-
-
-@pytest.fixture
-def client():
-    """Cliente de prueba: llama a la API sin tener que encenderla."""
-    app.config["TESTING"] = True
-    with app.test_client() as test_client:
-        yield test_client
-
 
 def test_health_returns_ok(client):
     response = client.get("/health")

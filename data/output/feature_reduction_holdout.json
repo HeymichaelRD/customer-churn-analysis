@@ -1,0 +1,57 @@
+{
+  "selected_variant": "Reducción elegida",
+  "selected_features": [
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "tenure",
+    "InternetService",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod",
+    "MonthlyCharges",
+    "SecuritySupportCount",
+    "StreamingServicesCount"
+  ],
+  "screening_best_f1": 0.6276564774381368,
+  "f1_tolerance": 0.005,
+  "holdout_random_state": 47,
+  "holdout_comparison": [
+    {
+      "variant": "Base actual (15)",
+      "n_features": 15,
+      "threshold": 0.46,
+      "precision_yes": 0.5081669691470054,
+      "recall_yes": 0.7486631016042781,
+      "f1_yes": 0.6054054054054054
+    },
+    {
+      "variant": "Reducción elegida",
+      "n_features": 12,
+      "threshold": 0.46,
+      "precision_yes": 0.5035460992907801,
+      "recall_yes": 0.7593582887700535,
+      "f1_yes": 0.605543710021322
+    }
+  ],
+  "repeated_holdout_summary": {
+    "Base actual (15)": {
+      "('precision_yes', 'mean')": 0.5345669053,
+      "('precision_yes', 'std')": 0.0257238706,
+      "('recall_yes', 'mean')": 0.764171123,
+      "('recall_yes', 'std')": 0.0186591939,
+      "('f1_yes', 'mean')": 0.6289547692,
+      "('f1_yes', 'std')": 0.0231488141
+    },
+    "Reducción elegida": {
+      "('precision_yes', 'mean')": 0.5238868383,
+      "('precision_yes', 'std')": 0.0128543487,
+      "('recall_yes', 'mean')": 0.7770053476,
+      "('recall_yes', 'std')": 0.0367391744,
+      "('f1_yes', 'mean')": 0.6256788923,
+      "('f1_yes', 'std')": 0.0194804086
+    }
+  },
+  "note": "El conjunto de prueba final no se usó para seleccionar variables ni ajustar umbrales. La búsqueda inicial usa OOF del 80% de train."
+}
